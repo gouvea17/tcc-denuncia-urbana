@@ -73,58 +73,62 @@
     </footer>
 
     <script>
-        document.getElementById('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    document.getElementById('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const btn = document.getElementById('btn');
-            const titulo = document.getElementById('titulo').value.trim();
-            const tipo = document.getElementById('tipo').value;
-            const descricao = document.getElementById('descricao').value.trim();
-            const localizacao = document.getElementById('localizacao').value.trim();
-            const msgError = document.getElementById('msgError');
-            const msgSuccess = document.getElementById('msgSuccess');
+        const btn = document.getElementById('btn');
+        const titulo = document.getElementById('titulo').value.trim();
+        const tipo = document.getElementById('tipo').value;
+        const descricao = document.getElementById('descricao').value.trim();
+        const localizacao = document.getElementById('localizacao').value.trim();
+        const msgError = document.getElementById('msgError');
+        const msgSuccess = document.getElementById('msgSuccess');
 
-            msgError.style.display = 'none';
-            msgSuccess.style.display = 'none';
+        msgError.style.display = 'none';
+        msgSuccess.style.display = 'none';
 
-            if (!titulo || !tipo || !descricao || !localizacao) {
-                msgError.textContent = 'Preencha todos os campos antes de enviar.';
+        if (!titulo || !tipo || !descricao || !localizacao) {
+            msgError.textContent = 'Preencha todos os campos antes de enviar.';
+            msgError.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+        try {
+            // 👇 MUDANÇA AQUI 👇
+            const resposta = await fetch('http://localhost:3000/api/denuncias', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, tipo, descricao, localizacao })
+            });
+            // 👆 MUDANÇA AQUI 👆
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+                msgSuccess.textContent = 'Denúncia enviada com sucesso! Redirecionando...';
+                msgSuccess.style.display = 'block';
+                setTimeout(() => { window.location.href = 'home.html'; }, 1500);
+            } else if (resposta.status === 401) {
+                msgError.textContent = 'Sua sessão expirou. Faça login novamente.';
                 msgError.style.display = 'block';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Enviando...';
-
-            try {
-                const resposta = await fetch('/api/denuncias', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ titulo, tipo, descricao, localizacao })
-                });
-                const dados = await resposta.json();
-
-                if (resposta.ok) {
-                    msgSuccess.textContent = 'Denúncia enviada com sucesso! Redirecionando...';
-                    msgSuccess.style.display = 'block';
-                    setTimeout(() => { window.location.href = 'home.html'; }, 1500);
-                } else if (resposta.status === 401) {
-                    msgError.textContent = 'Sua sessão expirou. Faça login novamente.';
-                    msgError.style.display = 'block';
-                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-                } else {
-                    msgError.textContent = dados.error || 'Erro ao criar denúncia.';
-                    msgError.style.display = 'block';
-                }
-            } catch (erro) {
-                msgError.textContent = 'Erro de conexão com o servidor.';
+                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+            } else {
+                msgError.textContent = dados.error || 'Erro ao criar denúncia.';
                 msgError.style.display = 'block';
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-send"></i> Enviar Denúncia';
             }
-        });
-    </script>
+        } catch (erro) {
+            console.error('Erro:', erro);
+            msgError.textContent = 'Erro de conexão com o servidor.';
+            msgError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send"></i> Enviar Denúncia';
+        }
+    });
+</script>
 </body>
 </html>

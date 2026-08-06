@@ -99,49 +99,52 @@
     });
 
     form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        errorMessage.style.display = 'none';
-        successMessage.style.display = 'none';
+    e.preventDefault();
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
 
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const senha = senhaInput.value;
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const senha = senhaInput.value;
 
-        if (senha.length < 6) {
-            errorMessage.textContent = 'A senha precisa ter no mínimo 6 caracteres.';
+    if (senha.length < 6) {
+        errorMessage.textContent = 'A senha precisa ter no mínimo 6 caracteres.';
+        errorMessage.style.display = 'block';
+        return;
+    }
+
+    btnRegister.disabled = true;
+    btnRegister.innerHTML = '<span class="spinner"></span> Criando conta...';
+
+    try {
+        // 👇👇👇 MUDANÇA AQUI 👇👇👇
+        const response = await fetch('http://localhost:3000/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email, senha })
+        });
+        // 👆👆👆 MUDANÇA AQUI 👆👆👆
+
+        const data = await response.json();
+
+        if (response.ok) {
+            successMessage.textContent = 'Cadastro realizado! Redirecionando...';
+            successMessage.style.display = 'block';
+            localStorage.setItem('usuario', JSON.stringify(data.user));
+            setTimeout(() => { window.location.href = 'home.html'; }, 1000);
+        } else {
+            errorMessage.textContent = data.error || 'Erro ao cadastrar.';
             errorMessage.style.display = 'block';
-            return;
         }
-
-        btnRegister.disabled = true;
-        btnRegister.innerHTML = '<span class="spinner"></span> Criando conta...';
-
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ nome, email, senha })
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                successMessage.textContent = 'Cadastro realizado! Redirecionando...';
-                successMessage.style.display = 'block';
-                localStorage.setItem('usuario', JSON.stringify(data.user));
-                setTimeout(() => { window.location.href = 'home.html'; }, 1000);
-            } else {
-                errorMessage.textContent = data.error || 'Erro ao cadastrar.';
-                errorMessage.style.display = 'block';
-            }
-        } catch (error) {
-            errorMessage.textContent = 'Erro ao conectar com o servidor.';
-            errorMessage.style.display = 'block';
-        } finally {
-            btnRegister.disabled = false;
-            btnRegister.innerHTML = '<i class="bi bi-person-plus"></i> Criar conta';
-        }
-    });
+    } catch (error) {
+        errorMessage.textContent = 'Erro ao conectar com o servidor.';
+        errorMessage.style.display = 'block';
+        console.error('Erro detalhado:', error);
+    } finally {
+        btnRegister.disabled = false;
+        btnRegister.innerHTML = '<i class="bi bi-person-plus"></i> Criar conta';
+    }
+});
 </script>
 </body>
 </html>

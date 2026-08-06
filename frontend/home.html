@@ -124,127 +124,35 @@
     </footer>
 
     <script>
-        let todasDenuncias = [];
-        let filtroAtual = 'todas';
+    // Mostra o nome do usuário do localStorage
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    if (usuario.nome) {
+        document.getElementById('nomeUsuario').textContent = usuario.nome;
+    } else {
+        // Se não tiver usuário, vai para o login
+        window.location.href = 'login.html';
+    }
 
-        async function verificarSessao() {
-            try {
-                const resposta = await fetch('/api/check-session', { credentials: 'include' });
-                const dados = await resposta.json();
-                if (!dados.loggedIn) { window.location.href = 'login.html'; return; }
-                localStorage.setItem('usuario', JSON.stringify(dados.user));
-                document.getElementById('nomeUsuario').textContent = dados.user.nome || 'Cidadão';
-                carregarDenuncias();
-            } catch (erro) {
-                window.location.href = 'login.html';
-            }
-        }
+    // Mostra mensagem de boas-vindas no lugar das denúncias
+    document.getElementById('denunciasGrid').innerHTML = `
+        <div class="empty-state">
+            <i class="bi bi-check-circle-fill"></i>
+            <h3>Bem-vindo, ${usuario.nome || 'Cidadão'}!</h3>
+            <p>O sistema está funcionando! Em breve as denúncias aparecerão aqui.</p>
+            <button class="btn btn-primary" onclick="window.location.href='denuncia.html'">
+                <i class="bi bi-plus-lg"></i> Criar minha primeira denúncia
+            </button>
+        </div>
+    `;
 
-        async function carregarDenuncias() {
-            try {
-                const resposta = await fetch('/api/denuncias', { credentials: 'include' });
-                const dados = await resposta.json();
-                todasDenuncias = dados.denuncias || [];
-                renderizarDenuncias();
-                atualizarEstatisticas();
-            } catch (erro) {
-                document.getElementById('denunciasGrid').innerHTML = `
-                    <div class="empty-state">
-                        <i class="bi bi-wifi-off"></i>
-                        <h3>Erro ao conectar</h3>
-                        <p>Verifique se o servidor está rodando.</p>
-                    </div>`;
-            }
-        }
+    function logout() {
+        localStorage.removeItem('usuario');
+        window.location.href = 'login.html';
+    }
 
-        function atualizarEstatisticas() {
-            document.getElementById('statDenuncias').textContent = todasDenuncias.length;
-            document.getElementById('statResolvidas').textContent = todasDenuncias.filter(d => d.status === 'resolvida').length;
-            document.getElementById('statUsuarios').textContent = new Set(todasDenuncias.map(d => d.criador_email)).size;
-        }
-
-        function filtrarDenuncias(filtro) {
-            filtroAtual = filtro;
-            document.querySelectorAll('.btn-ghost').forEach(btn => btn.classList.remove('active'));
-            const btnMap = { 'todas': 'btnTodas', 'pendente': 'btnPendente', 'em_andamento': 'btnEmAndamento', 'resolvida': 'btnResolvida' };
-            if (btnMap[filtro]) document.getElementById(btnMap[filtro]).classList.add('active');
-            document.getElementById('filtroStatus').value = filtro;
-            renderizarDenuncias();
-        }
-
-        function renderizarDenuncias() {
-            const grid = document.getElementById('denunciasGrid');
-            const filtradas = filtroAtual === 'todas' ? todasDenuncias : todasDenuncias.filter(d => d.status === filtroAtual);
-            if (filtradas.length === 0) {
-                grid.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><h3>Nenhuma denúncia</h3><p>Seja o primeiro a registrar um problema na sua cidade!</p></div>`;
-                return;
-            }
-            grid.innerHTML = filtradas.map(d => `
-                <div class="denuncia-card">
-                    <div class="card-header">
-                        <span class="card-title">${escapeHtml(d.titulo)}</span>
-                        <span class="card-type ${getTipoClass(d.tipo)}">${escapeHtml(d.tipo || 'Outros')}</span>
-                    </div>
-                    <div class="card-body">${escapeHtml(d.descricao)}</div>
-                    <div class="card-meta">
-                        <span><i class="bi bi-geo-alt"></i> ${escapeHtml(d.localizacao)}</span>
-                        <span><i class="bi bi-person"></i> ${escapeHtml(d.criador_nome || 'Anônimo')}</span>
-                        <span><i class="bi bi-calendar3"></i> ${formatarData(d.created_at)}</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="status-badge status-${d.status}">${formatarStatus(d.status)}</span>
-                        ${d.ja_votei
-                            ? `<button class="btn-vote voted" id="voteBtn${d.id}" disabled><i class="bi bi-hand-thumbs-up-fill"></i> Apoiado (${d.votos || 0})</button>`
-                            : `<button class="btn-vote" onclick="apoiarDenuncia(${d.id})" id="voteBtn${d.id}"><i class="bi bi-hand-thumbs-up"></i> Apoiar (${d.votos || 0})</button>`
-                        }
-                    </div>
-                </div>`).join('');
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function getTipoClass(tipo) {
-            const map = { 'Buraco': 'type-buraco', 'Iluminação': 'type-iluminacao', 'Lixo': 'type-lixo', 'Saneamento': 'type-saneamento', 'Outros': 'type-outros' };
-            return map[tipo] || 'type-default';
-        }
-
-        function formatarStatus(status) {
-            return { 'pendente': 'Pendente', 'em_andamento': 'Em Andamento', 'resolvida': 'Resolvida' }[status] || status;
-        }
-
-        function formatarData(data) {
-            if (!data) return '—';
-            return new Date(data).toLocaleDateString('pt-BR');
-        }
-
-        async function apoiarDenuncia(id) {
-            try {
-                const resposta = await fetch(`/api/denuncias/${id}/votar`, { method: 'POST', credentials: 'include' });
-                const dados = await resposta.json();
-                if (resposta.ok) {
-                    const denuncia = todasDenuncias.find(d => d.id === id);
-                    if (denuncia) { denuncia.votos = dados.votos; denuncia.ja_votei = true; }
-                    const btn = document.getElementById('voteBtn' + id);
-                    if (btn) { btn.classList.add('voted'); btn.disabled = true; btn.innerHTML = `<i class="bi bi-hand-thumbs-up-fill"></i> Apoiado (${dados.votos})`; }
-                } else if (resposta.status === 401) {
-                    window.location.href = 'login.html';
-                } else { alert(dados.error || 'Erro ao votar'); }
-            } catch (erro) { console.error('Erro ao votar:', erro); }
-        }
-
-        async function logout() {
-            try { await fetch('/api/logout', { method: 'POST', credentials: 'include' }); } catch (e) {}
-            localStorage.removeItem('usuario');
-            window.location.href = 'login.html';
-        }
-
-        document.getElementById('novaDenunciaBtn').addEventListener('click', () => { window.location.href = 'denuncia.html'; });
-        verificarSessao();
-    </script>
+    document.getElementById('novaDenunciaBtn').addEventListener('click', () => {
+        window.location.href = 'denuncia.html';
+    });
+</script>
 </body>
 </html>

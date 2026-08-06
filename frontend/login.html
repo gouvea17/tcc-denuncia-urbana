@@ -84,33 +84,49 @@
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
         const email = document.getElementById('email').value.trim();
         const senha = document.getElementById('senha').value;
 
-        if (!email || !senha) { showMessage('Por favor, preencha todos os campos.', 'error'); return; }
+        if (!email || !senha) { 
+            showMessage('Por favor, preencha todos os campos.', 'error'); 
+            return; 
+        }
 
         showMessage('Verificando credenciais...', 'loading');
         btnEntrar.disabled = true;
         btnEntrar.innerHTML = '<span class="spinner"></span> Entrando...';
 
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('http://localhost:3000/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ email, senha })
             });
+            
             const data = await response.json();
 
             if (response.ok) {
-                showMessage('Login realizado! Redirecionando...', 'success');
+                // Salva o usuário
                 localStorage.setItem('usuario', JSON.stringify(data.user));
-                setTimeout(() => { window.location.href = 'home.html'; }, 800);
+                
+                // 👇 REDIRECIONAMENTO GARANTIDO 👇
+                showMessage('Login realizado! Redirecionando...', 'success');
+                
+                // Redireciona imediatamente
+                window.location.href = 'home.html';
+                
+                // OU se quiser com delay:
+                // setTimeout(() => { 
+                //     window.location.href = 'home.html'; 
+                // }, 1000);
+                
             } else {
                 showMessage(data.error || 'E-mail ou senha incorretos.', 'error');
                 document.getElementById('senha').value = '';
             }
         } catch (error) {
+            console.error('Erro:', error);
             showMessage('Erro de conexão. Verifique se o servidor está rodando.', 'error');
         } finally {
             btnEntrar.disabled = false;
