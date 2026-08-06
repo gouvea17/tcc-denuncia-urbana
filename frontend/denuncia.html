@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Denúncia · Denúncias Urbanas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="form-page">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="home.html" class="navbar-brand">
+            <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+        </a>
+        <div class="navbar-actions">
+            <a href="home.html" class="btn btn-outline" style="font-size:0.82rem; padding:7px 14px;">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </nav>
+
+    <div class="form-page-body">
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2><i class="bi bi-megaphone" style="color:var(--accent);margin-right:8px;font-weight:400"></i>Nova Denúncia</h2>
+                <p>Descreva o problema que você encontrou na sua cidade</p>
+            </div>
+
+            <div class="msg msg-error" id="msgError" style="display:none"></div>
+            <div class="msg msg-success" id="msgSuccess" style="display:none"></div>
+
+            <form id="form">
+                <div class="form-group">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" placeholder="Ex: Buraco na calçada da Rua das Flores" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de problema</label>
+                    <select id="tipo" required>
+                        <option value="">Selecione uma categoria...</option>
+                        <option value="Buraco">🕳 Buraco / Pavimentação</option>
+                        <option value="Iluminação">💡 Iluminação pública</option>
+                        <option value="Lixo">🗑 Lixo / Descarte irregular</option>
+                        <option value="Saneamento">🚿 Saneamento / Esgoto</option>
+                        <option value="Outros">📋 Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" placeholder="Descreva o problema com detalhes: há quanto tempo existe, qual o impacto, etc." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="localizacao">Localização</label>
+                    <input type="text" id="localizacao" placeholder="Ex: Rua das Flores, 123 — próximo ao mercado" required>
+                    <span class="input-hint"><i class="bi bi-info-circle"></i> Quanto mais específico, mais fácil de localizar</span>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btn">
+                    <i class="bi bi-send"></i> Enviar Denúncia
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 <strong>Denúncias Urbanas</strong> · Todos os direitos reservados</p>
+    </footer>
+
+    <script>
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('btn');
+            const titulo = document.getElementById('titulo').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const descricao = document.getElementById('descricao').value.trim();
+            const localizacao = document.getElementById('localizacao').value.trim();
+            const msgError = document.getElementById('msgError');
+            const msgSuccess = document.getElementById('msgSuccess');
+
+            msgError.style.display = 'none';
+            msgSuccess.style.display = 'none';
+
+            if (!titulo || !tipo || !descricao || !localizacao) {
+                msgError.textContent = 'Preencha todos os campos antes de enviar.';
+                msgError.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+            try {
+                const resposta = await fetch('/api/denuncias', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ titulo, tipo, descricao, localizacao })
+                });
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    msgSuccess.textContent = 'Denúncia enviada com sucesso! Redirecionando...';
+                    msgSuccess.style.display = 'block';
+                    setTimeout(() => { window.location.href = 'home.html'; }, 1500);
+                } else if (resposta.status === 401) {
+                    msgError.textContent = 'Sua sessão expirou. Faça login novamente.';
+                    msgError.style.display = 'block';
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                } else {
+                    msgError.textContent = dados.error || 'Erro ao criar denúncia.';
+                    msgError.style.display = 'block';
+                }
+            } catch (erro) {
+                msgError.textContent = 'Erro de conexão com o servidor.';
+                msgError.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send"></i> Enviar Denúncia';
+            }
+        });
+    </script>
+</body>
+</html>

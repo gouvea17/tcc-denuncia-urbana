@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denúncias Urbanas — Painel</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="home.html" class="navbar-brand">
+            <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+        </a>
+        <div class="navbar-user">
+            <span class="user-name">Bem-vindo(a), <strong id="nomeUsuario">Cidadão</strong></span>
+            <button class="btn-logout" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero home -->
+    <div class="hero-home">
+        <div class="hero-home-inner">
+            <div>
+                <h1>Denúncias da cidade</h1>
+                <p>Relate, vote e acompanhe os problemas da sua comunidade</p>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-number" id="statDenuncias">—</div>
+                    <div class="stat-label">Registradas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="statResolvidas">—</div>
+                    <div class="stat-label">Resolvidas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="statUsuarios">—</div>
+                    <div class="stat-label">Cidadãos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="container">
+
+        <!-- Sobre -->
+        <section class="about-section">
+            <h2>Transformando cidadãos em agentes de mudança</h2>
+            <p>
+                Somos uma plataforma que conecta você diretamente aos órgãos responsáveis pela nossa cidade.
+                Acreditamos que cada cidadão tem o poder de fazer a diferença. Quando você relata um problema
+                — seja um buraco na rua, uma lâmpada queimada ou qualquer outra situação — você não está
+                apenas reclamando: está contribuindo ativamente para uma cidade melhor.
+            </p>
+            <div class="about-features">
+                <div class="about-feature">
+                    <i class="bi bi-shield-check"></i>
+                    <h4>Transparência</h4>
+                    <span>Acompanhe o status em tempo real</span>
+                </div>
+                <div class="about-feature">
+                    <i class="bi bi-people"></i>
+                    <h4>Comunidade</h4>
+                    <span>Vote em problemas mais urgentes</span>
+                </div>
+                <div class="about-feature">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h4>Agilidade</h4>
+                    <span>Denúncias populares ganham prioridade</span>
+                </div>
+                <div class="about-feature">
+                    <i class="bi bi-heart"></i>
+                    <h4>Impacto real</h4>
+                    <span>Milhares de problemas já resolvidos</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Denúncias -->
+        <div class="page-header">
+            <h2>Denúncias recentes</h2>
+            <p>Veja o que seus vizinhos estão relatando e contribua com seu voto</p>
+        </div>
+
+        <!-- Controles -->
+        <div class="controls">
+            <button class="btn btn-primary" id="novaDenunciaBtn">
+                <i class="bi bi-plus-lg"></i> Nova Denúncia
+            </button>
+            <button class="btn btn-ghost active" onclick="filtrarDenuncias('todas')" id="btnTodas">Todas</button>
+            <button class="btn btn-ghost" onclick="filtrarDenuncias('pendente')" id="btnPendente">Pendentes</button>
+            <button class="btn btn-ghost" onclick="filtrarDenuncias('em_andamento')" id="btnEmAndamento">Em Andamento</button>
+            <button class="btn btn-ghost" onclick="filtrarDenuncias('resolvida')" id="btnResolvida">Resolvidas</button>
+            <select class="filter-select" id="filtroStatus" onchange="filtrarDenuncias(this.value)">
+                <option value="todas">Filtrar...</option>
+                <option value="todas">Todas</option>
+                <option value="pendente">Pendentes</option>
+                <option value="em_andamento">Em Andamento</option>
+                <option value="resolvida">Resolvidas</option>
+            </select>
+        </div>
+
+        <!-- Grid -->
+        <div class="denuncias-grid" id="denunciasGrid">
+            <div class="empty-state">
+                <i class="bi bi-hourglass-split"></i>
+                <h3>Carregando...</h3>
+                <p>Buscando denúncias do servidor</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Feito com <i class="bi bi-heart-fill"></i> para construir cidades melhores</p>
+        <p style="margin-top:0.4rem">© 2026 <strong>Denúncias Urbanas</strong> · Todos os direitos reservados</p>
+    </footer>
+
+    <script>
+        let todasDenuncias = [];
+        let filtroAtual = 'todas';
+
+        async function verificarSessao() {
+            try {
+                const resposta = await fetch('/api/check-session', { credentials: 'include' });
+                const dados = await resposta.json();
+                if (!dados.loggedIn) { window.location.href = 'login.html'; return; }
+                localStorage.setItem('usuario', JSON.stringify(dados.user));
+                document.getElementById('nomeUsuario').textContent = dados.user.nome || 'Cidadão';
+                carregarDenuncias();
+            } catch (erro) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function carregarDenuncias() {
+            try {
+                const resposta = await fetch('/api/denuncias', { credentials: 'include' });
+                const dados = await resposta.json();
+                todasDenuncias = dados.denuncias || [];
+                renderizarDenuncias();
+                atualizarEstatisticas();
+            } catch (erro) {
+                document.getElementById('denunciasGrid').innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-wifi-off"></i>
+                        <h3>Erro ao conectar</h3>
+                        <p>Verifique se o servidor está rodando.</p>
+                    </div>`;
+            }
+        }
+
+        function atualizarEstatisticas() {
+            document.getElementById('statDenuncias').textContent = todasDenuncias.length;
+            document.getElementById('statResolvidas').textContent = todasDenuncias.filter(d => d.status === 'resolvida').length;
+            document.getElementById('statUsuarios').textContent = new Set(todasDenuncias.map(d => d.criador_email)).size;
+        }
+
+        function filtrarDenuncias(filtro) {
+            filtroAtual = filtro;
+            document.querySelectorAll('.btn-ghost').forEach(btn => btn.classList.remove('active'));
+            const btnMap = { 'todas': 'btnTodas', 'pendente': 'btnPendente', 'em_andamento': 'btnEmAndamento', 'resolvida': 'btnResolvida' };
+            if (btnMap[filtro]) document.getElementById(btnMap[filtro]).classList.add('active');
+            document.getElementById('filtroStatus').value = filtro;
+            renderizarDenuncias();
+        }
+
+        function renderizarDenuncias() {
+            const grid = document.getElementById('denunciasGrid');
+            const filtradas = filtroAtual === 'todas' ? todasDenuncias : todasDenuncias.filter(d => d.status === filtroAtual);
+            if (filtradas.length === 0) {
+                grid.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><h3>Nenhuma denúncia</h3><p>Seja o primeiro a registrar um problema na sua cidade!</p></div>`;
+                return;
+            }
+            grid.innerHTML = filtradas.map(d => `
+                <div class="denuncia-card">
+                    <div class="card-header">
+                        <span class="card-title">${escapeHtml(d.titulo)}</span>
+                        <span class="card-type ${getTipoClass(d.tipo)}">${escapeHtml(d.tipo || 'Outros')}</span>
+                    </div>
+                    <div class="card-body">${escapeHtml(d.descricao)}</div>
+                    <div class="card-meta">
+                        <span><i class="bi bi-geo-alt"></i> ${escapeHtml(d.localizacao)}</span>
+                        <span><i class="bi bi-person"></i> ${escapeHtml(d.criador_nome || 'Anônimo')}</span>
+                        <span><i class="bi bi-calendar3"></i> ${formatarData(d.created_at)}</span>
+                    </div>
+                    <div class="card-footer">
+                        <span class="status-badge status-${d.status}">${formatarStatus(d.status)}</span>
+                        ${d.ja_votei
+                            ? `<button class="btn-vote voted" id="voteBtn${d.id}" disabled><i class="bi bi-hand-thumbs-up-fill"></i> Apoiado (${d.votos || 0})</button>`
+                            : `<button class="btn-vote" onclick="apoiarDenuncia(${d.id})" id="voteBtn${d.id}"><i class="bi bi-hand-thumbs-up"></i> Apoiar (${d.votos || 0})</button>`
+                        }
+                    </div>
+                </div>`).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTipoClass(tipo) {
+            const map = { 'Buraco': 'type-buraco', 'Iluminação': 'type-iluminacao', 'Lixo': 'type-lixo', 'Saneamento': 'type-saneamento', 'Outros': 'type-outros' };
+            return map[tipo] || 'type-default';
+        }
+
+        function formatarStatus(status) {
+            return { 'pendente': 'Pendente', 'em_andamento': 'Em Andamento', 'resolvida': 'Resolvida' }[status] || status;
+        }
+
+        function formatarData(data) {
+            if (!data) return '—';
+            return new Date(data).toLocaleDateString('pt-BR');
+        }
+
+        async function apoiarDenuncia(id) {
+            try {
+                const resposta = await fetch(`/api/denuncias/${id}/votar`, { method: 'POST', credentials: 'include' });
+                const dados = await resposta.json();
+                if (resposta.ok) {
+                    const denuncia = todasDenuncias.find(d => d.id === id);
+                    if (denuncia) { denuncia.votos = dados.votos; denuncia.ja_votei = true; }
+                    const btn = document.getElementById('voteBtn' + id);
+                    if (btn) { btn.classList.add('voted'); btn.disabled = true; btn.innerHTML = `<i class="bi bi-hand-thumbs-up-fill"></i> Apoiado (${dados.votos})`; }
+                } else if (resposta.status === 401) {
+                    window.location.href = 'login.html';
+                } else { alert(dados.error || 'Erro ao votar'); }
+            } catch (erro) { console.error('Erro ao votar:', erro); }
+        }
+
+        async function logout() {
+            try { await fetch('/api/logout', { method: 'POST', credentials: 'include' }); } catch (e) {}
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('novaDenunciaBtn').addEventListener('click', () => { window.location.href = 'denuncia.html'; });
+        verificarSessao();
+    </script>
+</body>
+</html>
