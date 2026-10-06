@@ -1,9 +1,11 @@
-// Garante que existe um usuário logado na sessão antes de continuar
-function exigirLogin(req, res, next) {
-  if (!req.session.usuario) {
-    return res.status(401).json({ error: 'É necessário estar logado para fazer isso.' });
-  }
-  next();
+function isAdmin(req, res, next) {
+    if (!req.session.usuario) {
+        return res.status(401).json({ error: 'Faça login primeiro.' });
+    }
+    if (!req.session.usuario.is_admin) {
+        return res.status(403).json({ error: 'Acesso negado. Você não é administrador.' });
+    }
+    next();
 }
 
-module.exports = { exigirLogin };
+module.exports = isAdmin;

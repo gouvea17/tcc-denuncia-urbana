@@ -3,132 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Denúncia · Denúncias Urbanas</title>
+    <title>Registrar Nova Denúncia · Portal Cidadão</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
-<body class="form-page">
+<body>
+
+    <!-- Barra Institucional -->
+    <div class="gov-topbar">
+        <span><i class="bi bi-shield-check"></i> Plataforma Cidadã Oficial de Atendimento Urbano</span>
+        <a href="home.html"><i class="bi bi-question-circle"></i> Ajuda e Ouvidoria</a>
+    </div>
 
     <!-- Navbar -->
     <nav class="navbar">
         <a href="home.html" class="navbar-brand">
-            <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+            <div class="brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <span>Denúncias <em>Urbanas</em></span>
         </a>
         <div class="navbar-actions">
-            <a href="home.html" class="btn btn-outline" style="font-size:0.82rem; padding:7px 14px;">
-                <i class="bi bi-arrow-left"></i> Voltar
+            <div class="user-badge" id="userBadge" style="display:none;">
+                <div class="user-avatar" id="avatarLetter">U</div>
+                <span id="userName">Cidadão</span>
+            </div>
+            <a href="home.html" class="btn btn-outline btn-sm">
+                <i class="bi bi-arrow-left"></i> Voltar ao Painel
             </a>
         </div>
     </nav>
 
-    <div class="form-page-body">
+    <!-- Corpo do Formulário -->
+    <main class="form-page-body">
         <div class="form-card">
             <div class="form-card-header">
-                <h2><i class="bi bi-megaphone" style="color:var(--accent);margin-right:8px;font-weight:400"></i>Nova Denúncia</h2>
-                <p>Descreva o problema que você encontrou na sua cidade</p>
+                <h2><i class="bi bi-megaphone-fill" style="color:var(--brand-blue)"></i> Registrar Nova Demanda</h2>
+                <p>Relate um problema de infraestrutura na sua cidade. Um protocolo oficial será gerado para acompanhamento.</p>
             </div>
 
             <div class="msg msg-error" id="msgError" style="display:none"></div>
             <div class="msg msg-success" id="msgSuccess" style="display:none"></div>
 
-            <form id="form">
+            <form id="formDenuncia">
+                
+                <!-- Título -->
                 <div class="form-group">
-                    <label for="titulo">Título</label>
-                    <input type="text" id="titulo" placeholder="Ex: Buraco na calçada da Rua das Flores" required>
+                    <label for="titulo">Título da Ocorrência <span class="req">*</span></label>
+                    <input type="text" id="titulo" class="form-control" placeholder="Ex: Buraco profundo na pista próximo ao cruzamento" required maxlength="120">
+                    <span class="input-hint"><i class="bi bi-info-circle"></i> Um resumo claro e objetivo do problema</span>
                 </div>
 
-                <div class="form-group">
-                    <label for="tipo">Tipo de problema</label>
-                    <select id="tipo" required>
-                        <option value="">Selecione uma categoria...</option>
-                        <option value="Buraco">🕳 Buraco / Pavimentação</option>
-                        <option value="Iluminação">💡 Iluminação pública</option>
-                        <option value="Lixo">🗑 Lixo / Descarte irregular</option>
-                        <option value="Saneamento">🚿 Saneamento / Esgoto</option>
-                        <option value="Outros">📋 Outros</option>
-                    </select>
+                <!-- Categoria e Urgência -->
+                <div class="location-grid">
+                    <div class="form-group">
+                        <label for="tipo">Categoria do Serviço <span class="req">*</span></label>
+                        <select id="tipo" class="form-control" required>
+                            <option value="">Selecione uma categoria...</option>
+                            <option value="Buraco">Pavimentação e Buracos</option>
+                            <option value="Iluminação">Iluminação Pública</option>
+                            <option value="Lixo">Lixo e Entulho Irregular</option>
+                            <option value="Saneamento">Saneamento e Esgoto</option>
+                            <option value="Trânsito">Sinalização e Trânsito</option>
+                            <option value="Calçadas">Calçadas e Acessibilidade</option>
+                            <option value="Áreas Verdes">Áreas Verdes e Poda</option>
+                            <option value="Outros">Outros Serviços Urbanos</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prioridade">Nível de Impacto / Urgência</label>
+                        <select id="prioridade" class="form-control">
+                            <option value="media">Média (Rotina de reparo)</option>
+                            <option value="baixa">Baixa (Manutenção preventiva)</option>
+                            <option value="alta">Alta (Risco a pedestres/trânsito)</option>
+                            <option value="urgente">Urgente (Risco iminente de acidente)</option>
+                        </select>
+                    </div>
                 </div>
 
+                <!-- Descrição Detalhada -->
                 <div class="form-group">
-                    <label for="descricao">Descrição</label>
-                    <textarea id="descricao" placeholder="Descreva o problema com detalhes: há quanto tempo existe, qual o impacto, etc." required></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label for="descricao">Descrição Detalhada <span class="req">*</span></label>
+                        <span id="charCount" style="font-size:0.75rem; color:var(--text-muted);">0 / 800</span>
+                    </div>
+                    <textarea id="descricao" class="form-control" placeholder="Descreva os detalhes: tamanho aproximado, quanto tempo o problema existe, se causa risco à segurança ou transtorno à comunidade..." required maxlength="800"></textarea>
                 </div>
 
+                <!-- Localização Inteligente -->
                 <div class="form-group">
-                    <label for="localizacao">Localização</label>
-                    <input type="text" id="localizacao" placeholder="Ex: Rua das Flores, 123 — próximo ao mercado" required>
-                    <span class="input-hint"><i class="bi bi-info-circle"></i> Quanto mais específico, mais fácil de localizar</span>
+                    <label>Localização do Ocorrido <span class="req">*</span></label>
+                    
+                    <div class="cep-row" style="margin-bottom:10px;">
+                        <input type="text" id="cep" class="form-control" placeholder="Digitar CEP (opcional)" style="max-width:180px;" maxlength="9">
+                        <button type="button" class="btn btn-outline-dark btn-sm" id="btnCep" onclick="buscarCep()">
+                            <i class="bi bi-search"></i> Preencher por CEP
+                        </button>
+                        <button type="button" class="btn btn-outline-dark btn-sm" id="btnGps" onclick="obterGps()">
+                            <i class="bi bi-geo-alt"></i> Usar meu GPS
+                        </button>
+                    </div>
+
+                    <div class="location-grid">
+                        <div>
+                            <input type="text" id="localizacao" class="form-control" placeholder="Logradouro / Rua e Número aproximado" required>
+                        </div>
+                        <div>
+                            <input type="text" id="bairro" class="form-control" placeholder="Bairro / Ponto de Referência">
+                        </div>
+                    </div>
+                    <span class="input-hint"><i class="bi bi-pin-map"></i> Indique detalhes como: "Em frente ao número 420" ou "Esquina com a Farmácia".</span>
                 </div>
 
-                <button type="submit" class="btn-submit" id="btn">
-                    <i class="bi bi-send"></i> Enviar Denúncia
-                </button>
+                <!-- Anexo de Fotografia (Evidência) -->
+                <div class="form-group">
+                    <label>Registro Fotográfico (Opcional, mas altamente recomendado)</label>
+                    
+                    <input type="file" id="fotoInput" accept="image/*" style="display:none;" onchange="processarFoto(this)">
+                    
+                    <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('fotoInput').click()">
+                        <div class="upload-icon"><i class="bi bi-camera-fill"></i></div>
+                        <div class="upload-title">Clique para selecionar uma foto ou arraste aqui</div>
+                        <div class="upload-subtitle">Formatos aceitos: JPG, PNG ou WEBP (Máximo 5MB)</div>
+                    </div>
+
+                    <div class="preview-container" id="previewContainer">
+                        <img id="previewImg" src="" alt="Pré-visualização da denúncia">
+                        <button type="button" class="btn-remove-photo" title="Remover foto" onclick="removerFoto(event)">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botão de Submissão -->
+                <div style="margin-top:2rem; display:flex; gap:12px; align-items:center;">
+                    <button type="submit" class="btn btn-civic btn-lg" id="btnSubmit" style="flex:1;">
+                        <i class="bi bi-send-fill"></i> Registrar Denúncia Oficial
+                    </button>
+                    <a href="home.html" class="btn btn-outline-dark btn-lg">Cancelar</a>
+                </div>
+
             </form>
+        </div>
+    </main>
+
+    <!-- Modal de Sucesso com Protocolo -->
+    <div class="modal-overlay" id="modalSucesso">
+        <div class="modal-box" style="text-align:center; padding:2.5rem 2rem;">
+            <div style="width:64px; height:64px; background:var(--status-resolvida-bg); border:2px solid var(--status-resolvida-border); color:var(--civic-green); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:2rem;">
+                <i class="bi bi-check2"></i>
+            </div>
+            
+            <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">Denúncia Protocolada!</h2>
+            <p style="color:var(--text-muted); margin-bottom:1.5rem;">Sua demanda foi registrada no sistema e encaminhada para a triagem da equipe responsável.</p>
+
+            <div style="background:var(--bg-subtle); border:1px dashed var(--border-medium); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem;">
+                <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700;">Número do Protocolo Oficial</span>
+                <div style="font-size:1.8rem; font-weight:800; color:var(--primary); font-family:'Plus Jakarta Sans',sans-serif; margin:6px 0;" id="protocoloGerado">
+                    DEN-2026-0000
+                </div>
+                <button type="button" class="btn btn-outline-dark btn-sm" onclick="copiarProtocolo()" id="btnCopiar">
+                    <i class="bi bi-clipboard"></i> Copiar Código
+                </button>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <a href="home.html" class="btn btn-primary btn-lg" style="width:100%;">
+                    <i class="bi bi-house-door"></i> Ir para o Painel de Denúncias
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>© 2026 <strong>Denúncias Urbanas</strong> · Todos os direitos reservados</p>
+        <div class="footer-inner">
+            <p>© 2026 <strong>Denúncias Urbanas</strong> · Trabalho de Conclusão de Curso (TCC)</p>
+            <p><i class="bi bi-shield-check"></i> Ouvidoria e Participação Popular Integrada</p>
+        </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="api.js"></script>
     <script>
-    document.getElementById('form').addEventListener('submit', async (e) => {
-        e.preventDefault();
+        let fotoBase64 = null;
 
-        const btn = document.getElementById('btn');
-        const titulo = document.getElementById('titulo').value.trim();
-        const tipo = document.getElementById('tipo').value;
-        const descricao = document.getElementById('descricao').value.trim();
-        const localizacao = document.getElementById('localizacao').value.trim();
-        const msgError = document.getElementById('msgError');
-        const msgSuccess = document.getElementById('msgSuccess');
+        // Contador de caracteres
+        const descInput = document.getElementById('descricao');
+        const charCount = document.getElementById('charCount');
+        descInput.addEventListener('input', () => {
+            charCount.textContent = `${descInput.value.length} / 800`;
+        });
 
-        msgError.style.display = 'none';
-        msgSuccess.style.display = 'none';
-
-        if (!titulo || !tipo || !descricao || !localizacao) {
-            msgError.textContent = 'Preencha todos os campos antes de enviar.';
-            msgError.style.display = 'block';
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Enviando...';
-
-        try {
-            // 👇 MUDANÇA AQUI 👇
-            const resposta = await fetch('http://localhost:3000/api/denuncias', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ titulo, tipo, descricao, localizacao })
-            });
-            // 👆 MUDANÇA AQUI 👆
-
-            const dados = await resposta.json();
-
-            if (resposta.ok) {
-                msgSuccess.textContent = 'Denúncia enviada com sucesso! Redirecionando...';
-                msgSuccess.style.display = 'block';
-                setTimeout(() => { window.location.href = 'home.html'; }, 1500);
-            } else if (resposta.status === 401) {
-                msgError.textContent = 'Sua sessão expirou. Faça login novamente.';
-                msgError.style.display = 'block';
-                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-            } else {
-                msgError.textContent = dados.error || 'Erro ao criar denúncia.';
-                msgError.style.display = 'block';
+        // Drag & Drop na foto
+        const dropzone = document.getElementById('dropzone');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+        });
+        dropzone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                document.getElementById('fotoInput').files = files;
+                processarFoto(document.getElementById('fotoInput'));
             }
-        } catch (erro) {
-            console.error('Erro:', erro);
-            msgError.textContent = 'Erro de conexão com o servidor.';
-            msgError.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-send"></i> Enviar Denúncia';
+        });
+
+        // Processar Foto para Base64 com compressão
+        function processarFoto(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            
+            if (file.size > 8 * 1024 * 1024) {
+                alert('A imagem é muito grande. Escolha uma foto de até 8MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                fotoBase64 = e.target.result;
+                document.getElementById('previewImg').src = fotoBase64;
+                document.getElementById('previewContainer').style.display = 'block';
+                dropzone.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
         }
-    });
-</script>
+
+        function removerFoto(e) {
+            e.stopPropagation();
+            fotoBase64 = null;
+            document.getElementById('fotoInput').value = '';
+            document.getElementById('previewImg').src = '';
+            document.getElementById('previewContainer').style.display = 'none';
+            dropzone.style.display = 'block';
+        }
+
+        // Buscar CEP via ViaCEP
+        async function buscarCep() {
+            const cepInput = document.getElementById('cep');
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length !== 8) {
+                alert('Digite um CEP válido com 8 dígitos.');
+                return;
+            }
+
+            const btn = document.getElementById('btnCep');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Buscando...';
+
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await res.json();
+                if (data.erro) {
+                    alert('CEP não localizado.');
+                } else {
+                    document.getElementById('localizacao').value = `${data.logradouro || ''}`;
+                    document.getElementById('bairro').value = `${data.bairro || ''} — ${data.localidade || ''}/${data.uf || ''}`;
+                }
+            } catch (err) {
+                alert('Não foi possível consultar o CEP no momento.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Obter GPS
+        function obterGps() {
+            if (!navigator.geolocation) {
+                alert('Seu navegador não suporta geolocalização.');
+                return;
+            }
+            const btn = document.getElementById('btnGps');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Obtendo...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude.toFixed(6);
+                    const lon = pos.coords.longitude.toFixed(6);
+                    
+                    try {
+                        // Tentar Geocodificação reversa gratuita OpenStreetMap
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                        const data = await res.json();
+                        if (data && data.address) {
+                            const rua = data.address.road || data.address.suburb || 'Localização via GPS';
+                            const bairro = data.address.neighbourhood || data.address.suburb || data.address.city_district || '';
+                            document.getElementById('localizacao').value = `${rua} (Coordenadas: ${lat}, ${lon})`;
+                            if (bairro) document.getElementById('bairro').value = bairro;
+                        } else {
+                            document.getElementById('localizacao').value = `Coordenadas: ${lat}, ${lon}`;
+                        }
+                    } catch (e) {
+                        document.getElementById('localizacao').value = `Coordenadas GPS: ${lat}, ${lon}`;
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                },
+                (err) => {
+                    alert('Não foi possível obter sua localização GPS. Verifique as permissões do navegador.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                },
+                { timeout: 10000 }
+            );
+        }
+
+        // Copiar Protocolo
+        function copiarProtocolo() {
+            const proto = document.getElementById('protocoloGerado').textContent.trim();
+            navigator.clipboard.writeText(proto).then(() => {
+                const btn = document.getElementById('btnCopiar');
+                btn.innerHTML = '<i class="bi bi-check2"></i> Protocolo Copiado!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i> Copiar Código';
+                }, 2000);
+            });
+        }
+
+        // Inicialização: Verificar Sessão
+        async function verificarSessao() {
+            const usuario = await sincronizarSessao();
+            if (usuario) {
+                const userBadge = document.getElementById('userBadge');
+                userBadge.style.display = 'flex';
+                document.getElementById('userName').textContent = usuario.nome.split(' ')[0];
+                document.getElementById('avatarLetter').textContent = usuario.nome.charAt(0).toUpperCase();
+            } else {
+                // Notificar que precisa de login
+                const msgError = document.getElementById('msgError');
+                msgError.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Você precisa estar logado para enviar denúncias. <a href="login.html" style="font-weight:700; text-decoration:underline; margin-left:6px;">Fazer Login</a>';
+                msgError.style.display = 'flex';
+            }
+        }
+
+        // Submissão do Formulário
+        document.getElementById('formDenuncia').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('btnSubmit');
+            const msgError = document.getElementById('msgError');
+            const msgSuccess = document.getElementById('msgSuccess');
+
+            msgError.style.display = 'none';
+            msgSuccess.style.display = 'none';
+
+            const titulo = document.getElementById('titulo').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const prioridade = document.getElementById('prioridade').value;
+            const descricao = document.getElementById('descricao').value.trim();
+            const localizacao = document.getElementById('localizacao').value.trim();
+            const bairro = document.getElementById('bairro').value.trim();
+
+            if (!titulo || !tipo || !descricao || !localizacao) {
+                msgError.textContent = 'Por favor, preencha todos os campos obrigatórios marcados com (*).';
+                msgError.style.display = 'flex';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Registrando no Sistema...';
+
+            const payload = {
+                titulo,
+                tipo,
+                prioridade,
+                descricao,
+                localizacao,
+                bairro,
+                foto_url: fotoBase64
+            };
+
+            const res = await apiFetch('/denuncias', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const protocolo = res.data.protocolo || `DEN-2026-${res.data.id || '0000'}`;
+                document.getElementById('protocoloGerado').textContent = protocolo;
+                document.getElementById('modalSucesso').classList.add('active');
+            } else if (res.status === 401) {
+                msgError.innerHTML = '<i class="bi bi-shield-lock"></i> Sua sessão expirou ou você não está logado. <a href="login.html" style="text-decoration:underline; font-weight:700; margin-left:5px;">Clique aqui para entrar</a>';
+                msgError.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar Denúncia Oficial';
+            } else {
+                msgError.textContent = res.data.error || 'Ocorreu um erro ao enviar a denúncia. Tente novamente.';
+                msgError.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar Denúncia Oficial';
+            }
+        });
+
+        verificarSessao();
+    </script>
 </body>
 </html>

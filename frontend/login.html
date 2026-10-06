@@ -11,126 +11,130 @@
 
 <div class="auth-page">
 
-    <!-- Lado esquerdo (visível apenas em telas largas) -->
+    <!-- Lado Esquerdo Institucional -->
     <aside class="auth-side">
         <div class="auth-side-content">
-            <div class="logo">
-                <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+            <div class="navbar-brand" style="margin-bottom:2rem;">
+                <div class="brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <span>Denúncias <em>Urbanas</em></span>
             </div>
-            <h2>Juntos por cidades <em>melhores</em></h2>
-            <p>Sua participação é o que move a mudança. Entre na plataforma e continue fazendo a diferença.</p>
-            <div class="auth-side-bullets">
-                <div class="auth-side-bullet">
+            <h2>Sua voz ativa na <em>transformação</em> da cidade</h2>
+            <p>Conecte-se para registrar novos problemas, acompanhar o status dos seus protocolos e apoiar as melhorias prioritárias da sua comunidade.</p>
+            
+            <div class="auth-bullets">
+                <div class="auth-bullet-item">
                     <i class="bi bi-check2-circle"></i>
-                    <span>Acompanhe suas denúncias em tempo real</span>
+                    <span>Acompanhamento transparente com protocolo oficial</span>
                 </div>
-                <div class="auth-side-bullet">
-                    <i class="bi bi-check2-circle"></i>
-                    <span>Vote em problemas que afetam mais a comunidade</span>
+                <div class="auth-bullet-item">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    <span>Mobilização comunitária para acelerar reparos urbanos</span>
                 </div>
-                <div class="auth-side-bullet">
-                    <i class="bi bi-check2-circle"></i>
-                    <span>Receba notificações quando um problema for resolvido</span>
+                <div class="auth-bullet-item">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Respostas e pareceres técnicos direto da gestão municipal</span>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Formulário -->
+    <!-- Formulário de Login Cidadão -->
     <main class="auth-main">
         <div class="auth-box">
 
             <div class="auth-box-header">
-                <h1>Bem-vindo de volta</h1>
-                <p>Entre para continuar contribuindo com sua cidade</p>
+                <h1>Acesso do Cidadão</h1>
+                <p>Entre com sua conta para participar da zeladoria da sua cidade</p>
             </div>
+
+            <div class="msg msg-error" id="msgError" style="display:none;"></div>
+            <div class="msg msg-success" id="msgSuccess" style="display:none;"></div>
 
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="seu@email.com" required autocomplete="email">
+                    <input type="email" id="email" class="form-control" placeholder="seu@email.com" required autocomplete="email">
                 </div>
+
                 <div class="form-group">
                     <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="••••••••" required autocomplete="current-password">
+                    <input type="password" id="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
                 </div>
-                <button type="submit" class="btn-submit" id="btnEntrar">
-                    <i class="bi bi-box-arrow-in-right"></i> Entrar
+
+                <button type="submit" class="btn btn-primary btn-lg" id="btnEntrar" style="width:100%;">
+                    <i class="bi bi-box-arrow-in-right"></i> Entrar na Plataforma
                 </button>
             </form>
 
-            <div id="messageContainer"></div>
-
             <div class="auth-links">
-                Não tem uma conta? <a href="register.html">Cadastre-se grátis</a>
+                Ainda não tem uma conta? <a href="register.html">Cadastre-se gratuitamente</a>
             </div>
-            <div class="auth-back">
-                <a href="index.html"><i class="bi bi-arrow-left"></i> Voltar para a página inicial</a>
+
+            <div style="margin-top:1.5rem; text-align:center;">
+                <a href="index.html" style="font-size:0.82rem; color:var(--text-muted);"><i class="bi bi-arrow-left"></i> Voltar à página inicial</a>
             </div>
+
         </div>
     </main>
 
 </div>
 
+<script src="api.js"></script>
 <script>
-    const loginForm = document.getElementById('loginForm');
-    const messageContainer = document.getElementById('messageContainer');
-    const btnEntrar = document.getElementById('btnEntrar');
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    function showMessage(text, type) {
-        messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
-        if (type !== 'loading') setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
-    }
+        const btn = document.getElementById('btnEntrar');
+        const msgError = document.getElementById('msgError');
+        const msgSuccess = document.getElementById('msgSuccess');
 
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        
+        msgError.style.display = 'none';
+        msgSuccess.style.display = 'none';
+
         const email = document.getElementById('email').value.trim();
         const senha = document.getElementById('senha').value;
 
-        if (!email || !senha) { 
-            showMessage('Por favor, preencha todos os campos.', 'error'); 
-            return; 
+        if (!email || !senha) {
+            msgError.textContent = 'Preencha o e-mail e a senha.';
+            msgError.style.display = 'flex';
+            return;
         }
 
-        showMessage('Verificando credenciais...', 'loading');
-        btnEntrar.disabled = true;
-        btnEntrar.innerHTML = '<span class="spinner"></span> Entrando...';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Autenticando...';
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const res = await apiFetch('/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, senha })
             });
-            
-            const data = await response.json();
 
-            if (response.ok) {
-                // Salva o usuário
-                localStorage.setItem('usuario', JSON.stringify(data.user));
+            if (res.ok && res.data.success) {
+                salvarUsuarioLogado(res.data.usuario || res.data.user);
+                msgSuccess.innerHTML = '<i class="bi bi-check-circle-fill"></i> Login realizado com sucesso! Redirecionando...';
+                msgSuccess.style.display = 'flex';
                 
-                // 👇 REDIRECIONAMENTO GARANTIDO 👇
-                showMessage('Login realizado! Redirecionando...', 'success');
-                
-                // Redireciona imediatamente
-                window.location.href = 'home.html';
-                
-                // OU se quiser com delay:
-                // setTimeout(() => { 
-                //     window.location.href = 'home.html'; 
-                // }, 1000);
-                
+                setTimeout(() => {
+                    if (res.data.usuario && res.data.usuario.is_admin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'home.html';
+                    }
+                }, 800);
             } else {
-                showMessage(data.error || 'E-mail ou senha incorretos.', 'error');
-                document.getElementById('senha').value = '';
+                msgError.textContent = res.data.error || 'E-mail ou senha incorretos.';
+                msgError.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Entrar na Plataforma';
             }
-        } catch (error) {
-            console.error('Erro:', error);
-            showMessage('Erro de conexão. Verifique se o servidor está rodando.', 'error');
+        } catch (err) {
+            msgError.textContent = 'Erro ao conectar. Verifique se o servidor está rodando na porta 3000.';
+            msgError.style.display = 'flex';
         } finally {
-            btnEntrar.disabled = false;
-            btnEntrar.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Entrar';
+            if (!msgSuccess.style.display || msgSuccess.style.display === 'none') {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Entrar na Plataforma';
+            }
         }
     });
 </script>

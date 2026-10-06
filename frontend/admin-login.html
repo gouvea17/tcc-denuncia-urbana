@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Administrativo · Portal de Gestão Municipal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<div class="auth-page">
+
+    <!-- Lado Esquerdo Institucional -->
+    <aside class="auth-side" style="background: linear-gradient(135deg, #091a2b 0%, #11283d 100%);">
+        <div class="auth-side-content">
+            <div class="navbar-brand" style="margin-bottom:2rem;">
+                <div class="brand-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="bi bi-shield-lock-fill"></i></div>
+                <span>Gestão <em>Municipal</em></span>
+            </div>
+            <h2>Painel Restrito de <em>Governança</em> Urbana</h2>
+            <p>Ambiente exclusivo para servidores públicos, fiscais e gestores municipais acompanharem e despacharem as ocorrências da comunidade.</p>
+            
+            <div class="auth-bullets">
+                <div class="auth-bullet-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Indicadores executivos e taxa de resolutividade em tempo real</span>
+                </div>
+                <div class="auth-bullet-item">
+                    <i class="bi bi-chat-left-dots"></i>
+                    <span>Emissão de pareceres técnicos e respostas oficiais aos cidadãos</span>
+                </div>
+                <div class="auth-bullet-item">
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                    <span>Exportação de relatórios para prestação de contas</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Formulário de Login Administrativo -->
+    <main class="auth-main">
+        <div class="auth-box">
+            
+            <div class="auth-badge-admin">
+                <i class="bi bi-shield-fill-check"></i> Acesso Restrito a Administradores
+            </div>
+
+            <div class="auth-box-header">
+                <h1>Entrar como Administrador</h1>
+                <p>Insira suas credenciais funcionais autorizadas</p>
+            </div>
+
+            <div class="msg msg-error" id="msgError" style="display:none;"></div>
+            <div class="msg msg-success" id="msgSuccess" style="display:none;"></div>
+
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="email">E-mail Corporativo / Institucional</label>
+                    <input type="email" id="email" class="form-control" placeholder="admin@prefeitura.gov.br" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha de Acesso</label>
+                    <input type="password" id="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:1.5rem; font-size:0.8rem; color:#475569;">
+                    <i class="bi bi-info-circle-fill" style="color:#0284c7;"></i> <strong>Credencial de Demonstração (TCC):</strong><br>
+                    E-mail: <code>admin@prefeitura.gov.br</code> | Senha: <code>admin123</code>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="btnLogin" style="width:100%; background:#0f2942; border-color:#0f2942;">
+                    <i class="bi bi-shield-lock"></i> Autenticar no Painel de Gestão
+                </button>
+            </form>
+
+            <div class="auth-links" style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border-light);">
+                É um cidadão comum? <a href="login.html">Acessar Portal do Cidadão</a><br>
+                <a href="index.html" style="display:inline-block; margin-top:8px; color:var(--text-muted);"><i class="bi bi-arrow-left"></i> Voltar à página inicial</a>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<script src="api.js"></script>
+<script>
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = document.getElementById('btnLogin');
+        const msgError = document.getElementById('msgError');
+        const msgSuccess = document.getElementById('msgSuccess');
+
+        msgError.style.display = 'none';
+        msgSuccess.style.display = 'none';
+
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+
+        if (!email || !senha) {
+            msgError.textContent = 'Preencha o e-mail e a senha do administrador.';
+            msgError.style.display = 'flex';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Verificando permissões...';
+
+        try {
+            const res = await apiFetch('/admin/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, senha })
+            });
+
+            if (res.ok && res.data.success) {
+                salvarUsuarioLogado(res.data.usuario);
+                msgSuccess.innerHTML = '<i class="bi bi-check-circle-fill"></i> Autenticado com sucesso! Carregando painel de controle...';
+                msgSuccess.style.display = 'flex';
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 800);
+            } else {
+                msgError.textContent = res.data.error || 'Credenciais inválidas ou você não tem acesso de administrador.';
+                msgError.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-lock"></i> Autenticar no Painel de Gestão';
+            }
+        } catch (err) {
+            msgError.textContent = 'Erro ao conectar com o servidor.';
+            msgError.style.display = 'flex';
+        } finally {
+            if (!msgSuccess.style.display || msgSuccess.style.display === 'none') {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-lock"></i> Autenticar no Painel de Gestão';
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -3,156 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Denúncias Urbanas — Painel</title>
+    <title>Painel Cidadão · Denúncias Urbanas</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
 
+    <!-- Barra Institucional Gov -->
+    <div class="gov-topbar">
+        <span><i class="bi bi-shield-check"></i> Plataforma Cidadã de Fiscalização e Participação Urbana</span>
+        <span>Atendimento Digital Integrado</span>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar">
         <a href="home.html" class="navbar-brand">
-            <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+            <div class="brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <span>Denúncias <em>Urbanas</em></span>
         </a>
-        <div class="navbar-user">
-            <span class="user-name">Bem-vindo(a), <strong id="nomeUsuario">Cidadão</strong></span>
-            <button class="btn-logout" onclick="logout()">
+        <div class="navbar-actions">
+            <!-- Botão exibido apenas se o usuário logado for a prefeitura -->
+            <a href="admin.html" id="btnVoltarAdmin" class="btn btn-sm btn-outline" style="display:none; border-color:#f59e0b; color:#fbbf24;">
+                <i class="bi bi-shield-lock-fill"></i> Voltar ao Painel da Prefeitura
+            </a>
+
+            <div class="user-badge" id="userBadge">
+                <div class="user-avatar" id="avatarLetter">C</div>
+                <span id="nomeUsuario">Cidadão</span>
+            </div>
+
+            <button class="btn-logout" onclick="fazerLogout()">
                 <i class="bi bi-box-arrow-right"></i> Sair
             </button>
         </div>
     </nav>
 
-    <!-- Hero home -->
-    <div class="hero-home">
-        <div class="hero-home-inner">
-            <div>
-                <h1>Denúncias da cidade</h1>
-                <p>Relate, vote e acompanhe os problemas da sua comunidade</p>
+    <!-- Banner Superior com Métricas Reais do Banco -->
+    <header class="hero" style="padding:3rem 2rem 2.5rem;">
+        <div class="hero-inner">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1.5rem;">
+                <div>
+                    <span class="hero-pill">
+                        <i class="bi bi-broadcast"></i> Portal de Acompanhamento Público
+                    </span>
+                    <h1 style="font-size:2.2rem; margin-bottom:0.5rem;">Zeladoria Urbana Participativa</h1>
+                    <p style="margin-bottom:0; font-size:1rem; color:#cbd5e1;">
+                        Consulte as ocorrências do seu município, apoie prioridades da vizinhança e registre novas demandas.
+                    </p>
+                </div>
+                <div>
+                    <a href="denuncia.html" class="btn btn-civic btn-lg">
+                        <i class="bi bi-plus-circle-fill"></i> Registrar Nova Denúncia
+                    </a>
+                </div>
             </div>
-            <div class="stats-row">
-                <div class="stat">
-                    <div class="stat-number" id="statDenuncias">—</div>
-                    <div class="stat-label">Registradas</div>
+
+            <!-- Indicadores em Tempo Real -->
+            <div class="hero-stats-banner" style="margin-top:2rem; padding-top:1.5rem;">
+                <div class="stat-item">
+                    <span class="stat-num" id="statTotal">—</span>
+                    <span class="stat-lbl"><i class="bi bi-flag"></i> Total de Ocorrências</span>
                 </div>
-                <div class="stat">
-                    <div class="stat-number" id="statResolvidas">—</div>
-                    <div class="stat-label">Resolvidas</div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statAndamento" style="color:#7dd3fc;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-tools"></i> Em Atendimento</span>
                 </div>
-                <div class="stat">
-                    <div class="stat-number" id="statUsuarios">—</div>
-                    <div class="stat-label">Cidadãos</div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statResolvidas" style="color:#6ee7b7;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-check-circle-fill"></i> Demandas Solucionadas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statTaxa" style="color:#fde68a;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-graph-up"></i> Taxa de Resolução</span>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Conteúdo -->
-    <div class="container">
+    <!-- Conteúdo Principal -->
+    <main class="container">
+        
+        <!-- Barra de Ações, Filtros e Busca -->
+        <div class="controls-card">
+            <div class="controls-row-top">
+                
+                <!-- Caixa de Pesquisa -->
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="campoBusca" class="search-input" placeholder="Buscar por protocolo, rua, bairro ou palavra-chave..." oninput="filtrarLocal()">
+                </div>
 
-        <!-- Sobre -->
-        <section class="about-section">
-            <h2>Transformando cidadãos em agentes de mudança</h2>
-            <p>
-                Somos uma plataforma que conecta você diretamente aos órgãos responsáveis pela nossa cidade.
-                Acreditamos que cada cidadão tem o poder de fazer a diferença. Quando você relata um problema
-                — seja um buraco na rua, uma lâmpada queimada ou qualquer outra situação — você não está
-                apenas reclamando: está contribuindo ativamente para uma cidade melhor.
-            </p>
-            <div class="about-features">
-                <div class="about-feature">
-                    <i class="bi bi-shield-check"></i>
-                    <h4>Transparência</h4>
-                    <span>Acompanhe o status em tempo real</span>
+                <!-- Filtros Dinâmicos -->
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <!-- Categoria -->
+                    <select id="filtroCategoria" class="select-control" onchange="aplicarFiltros()">
+                        <option value="todas">Todas as Categorias</option>
+                        <option value="Buraco">Pavimentação e Buracos</option>
+                        <option value="Iluminação">Iluminação Pública</option>
+                        <option value="Lixo">Lixo e Entulho Irregular</option>
+                        <option value="Saneamento">Saneamento e Esgoto</option>
+                        <option value="Trânsito">Sinalização e Trânsito</option>
+                        <option value="Calçadas">Calçadas e Acessibilidade</option>
+                        <option value="Áreas Verdes">Áreas Verdes e Poda</option>
+                        <option value="Outros">Outros Serviços</option>
+                    </select>
+
+                    <!-- Ordenação -->
+                    <select id="ordenarPor" class="select-control" onchange="aplicarFiltros()">
+                        <option value="recentes">Mais Recentes</option>
+                        <option value="votos">Mais Apoiadas (Votos)</option>
+                    </select>
+
+                    <!-- Chips de Status -->
+                    <div class="filter-chips">
+                        <button class="filter-chip active" data-status="todas" onclick="selecionarStatus(this)">Todas</button>
+                        <button class="filter-chip" data-status="pendente" onclick="selecionarStatus(this)">Pendentes</button>
+                        <button class="filter-chip" data-status="em_andamento" onclick="selecionarStatus(this)">Em Andamento</button>
+                        <button class="filter-chip" data-status="resolvida" onclick="selecionarStatus(this)">Resolvidas</button>
+                    </div>
                 </div>
-                <div class="about-feature">
-                    <i class="bi bi-people"></i>
-                    <h4>Comunidade</h4>
-                    <span>Vote em problemas mais urgentes</span>
-                </div>
-                <div class="about-feature">
-                    <i class="bi bi-lightning-charge"></i>
-                    <h4>Agilidade</h4>
-                    <span>Denúncias populares ganham prioridade</span>
-                </div>
-                <div class="about-feature">
-                    <i class="bi bi-heart"></i>
-                    <h4>Impacto real</h4>
-                    <span>Milhares de problemas já resolvidos</span>
-                </div>
+
             </div>
-        </section>
-
-        <!-- Denúncias -->
-        <div class="page-header">
-            <h2>Denúncias recentes</h2>
-            <p>Veja o que seus vizinhos estão relatando e contribua com seu voto</p>
         </div>
 
-        <!-- Controles -->
-        <div class="controls">
-            <button class="btn btn-primary" id="novaDenunciaBtn">
-                <i class="bi bi-plus-lg"></i> Nova Denúncia
-            </button>
-            <button class="btn btn-ghost active" onclick="filtrarDenuncias('todas')" id="btnTodas">Todas</button>
-            <button class="btn btn-ghost" onclick="filtrarDenuncias('pendente')" id="btnPendente">Pendentes</button>
-            <button class="btn btn-ghost" onclick="filtrarDenuncias('em_andamento')" id="btnEmAndamento">Em Andamento</button>
-            <button class="btn btn-ghost" onclick="filtrarDenuncias('resolvida')" id="btnResolvida">Resolvidas</button>
-            <select class="filter-select" id="filtroStatus" onchange="filtrarDenuncias(this.value)">
-                <option value="todas">Filtrar...</option>
-                <option value="todas">Todas</option>
-                <option value="pendente">Pendentes</option>
-                <option value="em_andamento">Em Andamento</option>
-                <option value="resolvida">Resolvidas</option>
-            </select>
-        </div>
-
-        <!-- Grid -->
+        <!-- Grid de Cards de Denúncias -->
         <div class="denuncias-grid" id="denunciasGrid">
             <div class="empty-state">
                 <i class="bi bi-hourglass-split"></i>
-                <h3>Carregando...</h3>
-                <p>Buscando denúncias do servidor</p>
+                <h3>Carregando ocorrências...</h3>
+                <p>Buscando os registros mais recentes da cidade</p>
             </div>
         </div>
 
+    </main>
+
+    <!-- Modal Detalhado com Linha do Tempo e Parecer -->
+    <div class="modal-overlay" id="modalDetalhes" onclick="fecharModalDetalhes()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <span class="protocol-badge" id="modalProtocolo">DEN-2026-0000</span>
+                    <span class="category-tag" id="modalCategoria" style="margin-left:8px;">Categoria</span>
+                </div>
+                <button class="modal-close" onclick="fecharModalDetalhes()"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Foto da Ocorrência -->
+                <div id="modalFotoContainer" style="display:none; margin-bottom:1.25rem; border-radius:var(--radius-md); overflow:hidden; max-height:280px; background:#000;">
+                    <img id="modalFoto" src="" style="width:100%; height:100%; object-fit:contain;">
+                </div>
+
+                <h2 id="modalTitulo" style="font-size:1.4rem; margin-bottom:0.5rem;">Título da Denúncia</h2>
+                <p id="modalDescricao" style="color:var(--text-body); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6; white-space:pre-wrap;"></p>
+
+                <!-- Linha do Tempo de Resolução do TCC -->
+                <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border:1px solid var(--border-light);">
+                    <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:0.75rem;">
+                        <i class="bi bi-clock-history"></i> Linha do Tempo de Atendimento Municipal
+                    </span>
+                    
+                    <div class="timeline" id="timelineVisual">
+                        <div class="timeline-step completed" id="step1">
+                            <div class="timeline-dot"><i class="bi bi-check-lg"></i></div>
+                            <span class="timeline-label">Registrada</span>
+                        </div>
+                        <div class="timeline-step" id="step2">
+                            <div class="timeline-dot">2</div>
+                            <span class="timeline-label">Em Análise</span>
+                        </div>
+                        <div class="timeline-step" id="step3">
+                            <div class="timeline-dot">3</div>
+                            <span class="timeline-label">Em Execução</span>
+                        </div>
+                        <div class="timeline-step" id="step4">
+                            <div class="timeline-dot">4</div>
+                            <span class="timeline-label">Resolvida</span>
+                        </div>
+                    </div>
+
+                    <!-- Parecer Oficial do Órgão Público -->
+                    <div id="boxParecer" style="display:none; margin-top:1rem; padding:10px 14px; background:#eff6ff; border-left:4px solid var(--brand-blue); border-radius:var(--radius-sm);">
+                        <strong style="font-size:0.8rem; color:#1e40af; display:block; margin-bottom:3px;">
+                            <i class="bi bi-building-check"></i> Resposta Oficial da Prefeitura:
+                        </strong>
+                        <p id="textoParecer" style="font-size:0.85rem; color:#1e3a8a; margin:0;"></p>
+                    </div>
+                </div>
+
+                <!-- Detalhes e Metadados -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.82rem; color:var(--text-muted); background:#f8fafc; padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-light);">
+                    <div><i class="bi bi-geo-alt-fill" style="color:#ef4444;"></i> <strong id="modalLocal">Rua</strong></div>
+                    <div><i class="bi bi-pin-map"></i> Bairro: <strong id="modalBairro">Bairro</strong></div>
+                    <div><i class="bi bi-person-fill"></i> Solicitante: <strong id="modalAutor">Nome</strong></div>
+                    <div><i class="bi bi-calendar3"></i> Data: <strong id="modalData">Data</strong></div>
+                </div>
+
+                <!-- Ações no Modal -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-light);">
+                    <button class="btn-vote" id="modalBtnVoto" onclick="votarNoModal()">
+                        <i class="bi bi-hand-thumbs-up"></i> <span id="modalVotosCount">0</span> Apoios
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm" onclick="fecharModalDetalhes()">Fechar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>Feito com <i class="bi bi-heart-fill"></i> para construir cidades melhores</p>
-        <p style="margin-top:0.4rem">© 2026 <strong>Denúncias Urbanas</strong> · Todos os direitos reservados</p>
+        <div class="footer-inner">
+            <p>© 2026 <strong>Denúncias Urbanas</strong> · Trabalho de Conclusão de Curso (TCC)</p>
+            <p><i class="bi bi-shield-check"></i> Gestão Inteligente para Cidades Sustentáveis</p>
+        </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="api.js"></script>
     <script>
-    // Mostra o nome do usuário do localStorage
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    if (usuario.nome) {
-        document.getElementById('nomeUsuario').textContent = usuario.nome;
-    } else {
-        // Se não tiver usuário, vai para o login
-        window.location.href = 'login.html';
-    }
+        let todasDenuncias = [];
+        let statusAtivo = 'todas';
+        let denunciaAbertaNoModal = null;
 
-    // Mostra mensagem de boas-vindas no lugar das denúncias
-    document.getElementById('denunciasGrid').innerHTML = `
-        <div class="empty-state">
-            <i class="bi bi-check-circle-fill"></i>
-            <h3>Bem-vindo, ${usuario.nome || 'Cidadão'}!</h3>
-            <p>O sistema está funcionando! Em breve as denúncias aparecerão aqui.</p>
-            <button class="btn btn-primary" onclick="window.location.href='denuncia.html'">
-                <i class="bi bi-plus-lg"></i> Criar minha primeira denúncia
-            </button>
-        </div>
-    `;
+        // 1. Inicializar Usuário e Sessão
+        async function inicializarSessao() {
+            try {
+                const usuario = await sincronizarSessao();
+                if (!usuario) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-    function logout() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'login.html';
-    }
+                if (document.getElementById('nomeUsuario')) {
+                    document.getElementById('nomeUsuario').textContent = usuario.nome;
+                }
+                if (document.getElementById('avatarLetter')) {
+                    document.getElementById('avatarLetter').textContent = usuario.nome.charAt(0).toUpperCase();
+                }
 
-    document.getElementById('novaDenunciaBtn').addEventListener('click', () => {
-        window.location.href = 'denuncia.html';
-    });
-</script>
+                // Se quem estiver visualizando for a prefeitura, exibe botão para retornar ao painel da prefeitura
+                const btnAdmin = document.getElementById('btnVoltarAdmin');
+                if (btnAdmin && usuario.is_admin) {
+                    btnAdmin.style.display = 'inline-flex';
+                }
+            } catch (err) {
+                console.warn('Nota na verificação de sessão:', err);
+            }
+        }
+
+        // 2. Carregar Indicadores Públicos Reais
+        async function carregarEstatisticas() {
+            const res = await apiFetch('/denuncias/estatisticas-publicas');
+            if (res.ok && res.data.success) {
+                const d = res.data;
+                document.getElementById('statTotal').textContent = d.total;
+                document.getElementById('statAndamento').textContent = d.andamento;
+                document.getElementById('statResolvidas').textContent = d.resolvidas;
+                document.getElementById('statTaxa').textContent = d.taxa_resolucao;
+            }
+        }
+
+        // 3. Carregar Denúncias da API
+        async function carregarDenuncias() {
+            const grid = document.getElementById('denunciasGrid');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-hourglass-split"></i>
+                    <h3>Carregando ocorrências...</h3>
+                    <p>Buscando os registros mais recentes da cidade</p>
+                </div>
+            `;
+
+            let url = `/denuncias?status=${statusAtivo}`;
+            const cat = document.getElementById('filtroCategoria').value;
+            if (cat && cat !== 'todas') url += `&tipo=${encodeURIComponent(cat)}`;
+
+            const ordenacao = document.getElementById('ordenarPor').value;
+            if (ordenacao === 'votos') url += `&ordenar=votos`;
+
+            const res = await apiFetch(url);
+            if (res.ok && res.data.success) {
+                todasDenuncias = res.data.denuncias || [];
+                renderizarCards(todasDenuncias);
+            } else {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <h3>Erro de conexão</h3>
+                        <p>${res.data.error || 'Não foi possível carregar as denúncias.'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 4. Renderizar Cards de Denúncia
+        function renderizarCards(lista) {
+            const grid = document.getElementById('denunciasGrid');
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-inbox" style="font-size:3rem; color:var(--text-light);"></i>
+                        <h3>Nenhuma ocorrência encontrada</h3>
+                        <p>Nenhuma demanda corresponde aos filtros aplicados.</p>
+                        <a href="denuncia.html" class="btn btn-civic btn-sm">
+                            <i class="bi bi-plus-circle"></i> Criar Primeira Denúncia
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            lista.forEach(d => {
+                const statusClass = `status-${d.status}`;
+                let statusNome = 'Pendente';
+                if (d.status === 'em_andamento') statusNome = 'Em Andamento';
+                if (d.status === 'resolvida') statusNome = 'Resolvida';
+
+                const fotoHtml = d.foto_url ? `
+                    <div class="card-img-wrapper" onclick="abrirModal(${d.id})">
+                        <img src="${d.foto_url}" alt="${d.titulo}">
+                        <div class="card-header-meta">
+                            <span class="protocol-badge">${d.protocolo}</span>
+                            <span class="category-tag"><i class="bi bi-tag-fill"></i> ${d.tipo}</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="card-img-wrapper" onclick="abrirModal(${d.id})" style="height:120px;">
+                        <div class="card-img-fallback">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Registro Cívico Sem Foto</span>
+                        </div>
+                        <div class="card-header-meta">
+                            <span class="protocol-badge">${d.protocolo}</span>
+                            <span class="category-tag"><i class="bi bi-tag-fill"></i> ${d.tipo}</span>
+                        </div>
+                    </div>
+                `;
+
+                const jaVoteiClass = d.ja_votei ? 'voted' : '';
+                const jaVoteiTexto = d.ja_votei ? 'Apoiado' : 'Apoiar';
+
+                html += `
+                    <div class="denuncia-card">
+                        ${fotoHtml}
+                        <div class="card-content">
+                            <h3 class="card-title" onclick="abrirModal(${d.id})">${d.titulo}</h3>
+                            <p class="card-desc">${d.descricao}</p>
+                            
+                            <div class="card-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span>${d.localizacao} (${d.bairro || 'Sem Bairro'})</span>
+                            </div>
+
+                            <div class="card-footer">
+                                <span class="status-badge ${statusClass}">${statusNome}</span>
+                                
+                                <button class="btn-vote ${jaVoteiClass}" onclick="votar(${d.id}, this)">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                    <span>${d.votos || 0}</span> ${jaVoteiTexto}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // 5. Votar / Apoiar Ocorrência
+        async function votar(id, btnElement) {
+            const res = await apiFetch(`/denuncias/${id}/votar`, { method: 'POST' });
+            if (res.ok && res.data.success) {
+                // Atualiza contadores locais
+                const d = todasDenuncias.find(item => item.id === id);
+                if (d) {
+                    d.votos = res.data.votos;
+                    d.ja_votei = res.data.apoiado;
+                }
+                if (btnElement) {
+                    btnElement.classList.toggle('voted', res.data.apoiado);
+                    btnElement.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> <span>${res.data.votos}</span> ${res.data.apoiado ? 'Apoiado' : 'Apoiar'}`;
+                }
+            } else {
+                alert(res.data.error || 'Erro ao registrar apoio.');
+            }
+        }
+
+        // 6. Modal de Detalhes Completo com Linha do Tempo
+        function abrirModal(id) {
+            const d = todasDenuncias.find(item => item.id === id);
+            if (!d) return;
+
+            denunciaAbertaNoModal = d;
+
+            document.getElementById('modalProtocolo').textContent = d.protocolo;
+            document.getElementById('modalCategoria').textContent = d.tipo;
+            document.getElementById('modalTitulo').textContent = d.titulo;
+            document.getElementById('modalDescricao').textContent = d.descricao;
+            document.getElementById('modalLocal').textContent = d.localizacao;
+            document.getElementById('modalBairro').textContent = d.bairro || 'Região Central';
+            document.getElementById('modalAutor').textContent = d.criador_nome || 'Cidadão';
+            document.getElementById('modalData').textContent = formatarDataHora(d.created_at);
+
+            // Foto
+            const fotoCont = document.getElementById('modalFotoContainer');
+            if (d.foto_url) {
+                document.getElementById('modalFoto').src = d.foto_url;
+                fotoCont.style.display = 'block';
+            } else {
+                fotoCont.style.display = 'none';
+            }
+
+            // Linha do tempo de atendimento do TCC
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+            const step4 = document.getElementById('step4');
+
+            [step1, step2, step3, step4].forEach(s => s.className = 'timeline-step');
+
+            step1.classList.add('completed');
+            if (d.status === 'pendente') {
+                step2.classList.add('current');
+            } else if (d.status === 'em_andamento') {
+                step2.classList.add('completed');
+                step3.classList.add('current');
+            } else if (d.status === 'resolvida') {
+                step2.classList.add('completed');
+                step3.classList.add('completed');
+                step4.classList.add('completed');
+            }
+
+            // Parecer técnico
+            const boxParecer = document.getElementById('boxParecer');
+            if (d.resposta_orgao && d.resposta_orgao.trim()) {
+                document.getElementById('textoParecer').textContent = d.resposta_orgao;
+                boxParecer.style.display = 'block';
+            } else {
+                boxParecer.style.display = 'none';
+            }
+
+            // Botão de Voto no Modal
+            const btnVotoModal = document.getElementById('modalBtnVoto');
+            btnVotoModal.className = `btn-vote ${d.ja_votei ? 'voted' : ''}`;
+            document.getElementById('modalVotosCount').textContent = d.votos || 0;
+
+            document.getElementById('modalDetalhes').classList.add('active');
+        }
+
+        function fecharModalDetalhes() {
+            document.getElementById('modalDetalhes').classList.remove('active');
+            denunciaAbertaNoModal = null;
+        }
+
+        async function votarNoModal() {
+            if (!denunciaAbertaNoModal) return;
+            await votar(denunciaAbertaNoModal.id, null);
+            document.getElementById('modalVotosCount').textContent = denunciaAbertaNoModal.votos;
+            const btn = document.getElementById('modalBtnVoto');
+            btn.classList.toggle('voted', denunciaAbertaNoModal.ja_votei);
+            renderizarCards(todasDenuncias);
+        }
+
+        // 7. Filtros e Pesquisa
+        function selecionarStatus(btn) {
+            document.querySelectorAll('.filter-chips .filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            statusAtivo = btn.dataset.status;
+            carregarDenuncias();
+        }
+
+        function aplicarFiltros() {
+            carregarDenuncias();
+        }
+
+        function filtrarLocal() {
+            const termo = document.getElementById('campoBusca').value.toLowerCase().trim();
+            if (!termo) {
+                renderizarCards(todasDenuncias);
+                return;
+            }
+            const filtradas = todasDenuncias.filter(d => 
+                (d.titulo && d.titulo.toLowerCase().includes(termo)) ||
+                (d.protocolo && d.protocolo.toLowerCase().includes(termo)) ||
+                (d.descricao && d.descricao.toLowerCase().includes(termo)) ||
+                (d.localizacao && d.localizacao.toLowerCase().includes(termo)) ||
+                (d.bairro && d.bairro.toLowerCase().includes(termo))
+            );
+            renderizarCards(filtradas);
+        }
+
+        // 8. Logout
+        async function fazerLogout() {
+            await logout('login.html');
+        }
+
+        // Inicializar
+        async function init() {
+            await inicializarSessao();
+            carregarEstatisticas();
+            carregarDenuncias();
+        }
+
+        init();
+    </script>
 </body>
 </html>

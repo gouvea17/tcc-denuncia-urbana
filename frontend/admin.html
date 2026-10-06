@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão Urbana · Administração Municipal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .admin-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 0.75rem;
+        }
+        .admin-citizen-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .admin-citizen-box strong {
+            color: var(--text-main);
+        }
+        .parecer-box {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-light);
+        }
+        .parecer-input {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-medium);
+            background: #ffffff;
+            margin-top: 4px;
+            resize: vertical;
+            min-height: 55px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra Institucional -->
+    <div class="gov-topbar" style="background:#061320;">
+        <span><i class="bi bi-shield-lock-fill" style="color:#f59e0b;"></i> Módulo Administrativo Oficial · Secretaria de Obras e Serviços Urbanos</span>
+        <span>Sessão de Administrador Autorizada</span>
+    </div>
+
+    <!-- Navbar do Administrador -->
+    <nav class="navbar" style="background:#091d31; border-bottom-color:#f59e0b;">
+        <a href="admin.html" class="navbar-brand">
+            <div class="brand-icon" style="background:linear-gradient(135deg, #f59e0b, #d97706);"><i class="bi bi-gear-fill"></i></div>
+            <span>Gestão <em>Municipal</em> <span class="admin-tag">Admin</span></span>
+        </a>
+        <div class="navbar-actions">
+            <a href="home.html" target="_blank" class="btn btn-outline btn-sm" title="Ver como o cidadão visualiza">
+                <i class="bi bi-eye"></i> Ver Visão Pública
+            </a>
+            <div class="user-badge" style="background:rgba(255,255,255,0.12);">
+                <div class="user-avatar" style="background:#f59e0b;"><i class="bi bi-person-fill"></i></div>
+                <span id="adminNome">Carregando...</span>
+            </div>
+            <button class="btn-logout" onclick="fazerLogoutAdmin()">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header do Painel com KPIs -->
+    <div class="admin-header">
+        <div class="admin-header-inner">
+            <div>
+                <span class="hero-pill" style="background:rgba(245,158,11,0.2); border-color:rgba(245,158,11,0.4); color:#fde68a;">
+                    <i class="bi bi-speedometer2"></i> Painel de Despacho & Indicadores
+                </span>
+                <h1 style="font-size:2.2rem; margin-top:6px;">Central de Controle de Demandas Urbanas</h1>
+                <p style="color:#cbd5e1; margin-top:4px; max-width:650px;">
+                    Consulte todos os dados registrados pelos munícipes, despache equipes, emita pareceres técnicos e atualize o andamento dos serviços.
+                </p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-sm btn-outline" onclick="exportarRelatorioCSV()">
+                    <i class="bi bi-download"></i> Exportar Dados (CSV)
+                </button>
+                <button class="btn btn-sm btn-civic" onclick="carregarTudo()">
+                    <i class="bi bi-arrow-clockwise"></i> Atualizar Agora
+                </button>
+            </div>
+        </div>
+
+        <!-- Cards de Indicadores (KPIs) -->
+        <div class="admin-header-inner" style="margin-top:1.5rem;">
+            <div class="admin-kpis-grid" style="width:100%;">
+                <div class="kpi-card">
+                    <span class="kpi-num" id="statTotal">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-folder2-open"></i> Total Registrado</span>
+                </div>
+                <div class="kpi-card" style="border-left:4px solid #f59e0b;">
+                    <span class="kpi-num" id="statPendentes" style="color:#fbbf24;">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-clock-history"></i> Pendente de Triagem</span>
+                </div>
+                <div class="kpi-card" style="border-left:4px solid #38bdf8;">
+                    <span class="kpi-num" id="statAndamento" style="color:#7dd3fc;">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-tools"></i> Em Execução</span>
+                </div>
+                <div class="kpi-card" style="border-left:4px solid #34d399;">
+                    <span class="kpi-num" id="statResolvidas" style="color:#6ee7b7;">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-check2-circle"></i> Demandas Resolvidas</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-num" id="statResolutividade" style="color:#34d399;">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-graph-up"></i> Resolutividade</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-num" id="statUsuarios">—</span>
+                    <span class="kpi-lbl"><i class="bi bi-people"></i> Cidadãos Cadastrados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <main class="container">
+        
+        <!-- Barra de Busca e Filtros -->
+        <div class="controls-card">
+            <div class="controls-row-top">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="campoBusca" class="search-input" placeholder="Buscar por protocolo, cidadão, logradouro, bairro ou título..." oninput="filtrarLocal()">
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <select id="filtroCategoria" class="select-control" onchange="aplicarFiltrosServidor()">
+                        <option value="todas">Todas as Categorias</option>
+                        <option value="Buraco">Pavimentação e Buracos</option>
+                        <option value="Iluminação">Iluminação Pública</option>
+                        <option value="Lixo">Lixo e Entulho</option>
+                        <option value="Saneamento">Saneamento e Esgoto</option>
+                        <option value="Trânsito">Sinalização e Trânsito</option>
+                        <option value="Calçadas">Calçadas</option>
+                        <option value="Áreas Verdes">Áreas Verdes</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+
+                    <div class="filter-chips">
+                        <button class="filter-chip active" data-status="todas" onclick="selecionarStatus(this)">Todas (<span id="countTodas">0</span>)</button>
+                        <button class="filter-chip" data-status="pendente" onclick="selecionarStatus(this)">Pendentes (<span id="countPendentes">0</span>)</button>
+                        <button class="filter-chip" data-status="em_andamento" onclick="selecionarStatus(this)">Em Andamento (<span id="countAndamento">0</span>)</button>
+                        <button class="filter-chip" data-status="resolvida" onclick="selecionarStatus(this)">Resolvidas (<span id="countResolvidas">0</span>)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Gestão de Denúncias -->
+        <div class="denuncias-grid" id="adminGrid">
+            <div class="empty-state">
+                <i class="bi bi-hourglass-split"></i>
+                <h3>Carregando dados governamentais...</h3>
+                <p>Consultando base de ocorrências no servidor</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal de Ampliação de Foto -->
+    <div class="modal-overlay" id="modalFoto" onclick="fecharModalFoto()">
+        <div class="modal-box" style="max-width:800px; padding:1rem;" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <strong id="modalFotoTitulo">Evidência Fotográfica</strong>
+                <button class="modal-close" onclick="fecharModalFoto()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <img id="imgAmpliada" src="" style="width:100%; max-height:75vh; object-fit:contain; border-radius:var(--radius-md);">
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <p>© 2026 <strong>Denúncias Urbanas</strong> · Módulo de Governança Urbana Integrada (TCC)</p>
+            <p><i class="bi bi-shield-check"></i> Gestão de Políticas Públicas e Zeladoria Urbana</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+    <script>
+        let todasDenuncias = [];
+        let statusSelecionado = 'todas';
+
+        // 1. Verificação de Acesso Restrito de Administrador
+        async function verificarAcessoAdmin() {
+            const usuario = await sincronizarSessao();
+            if (!usuario || !usuario.is_admin) {
+                alert('Acesso negado: você não possui privilégios de Administrador Municipal.');
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            document.getElementById('adminNome').textContent = usuario.nome || 'Gestor Municipal';
+            return true;
+        }
+
+        // 2. Carregar Indicadores Executivos
+        async function carregarEstatisticas() {
+            const res = await apiFetch('/admin/estatisticas');
+            if (res.ok && res.data.success) {
+                const d = res.data;
+                document.getElementById('statTotal').textContent = d.total;
+                document.getElementById('statPendentes').textContent = d.pendentes;
+                document.getElementById('statAndamento').textContent = d.andamento;
+                document.getElementById('statResolvidas').textContent = d.resolvidas;
+                document.getElementById('statUsuarios').textContent = d.usuarios;
+                document.getElementById('statResolutividade').textContent = d.resolutividade;
+
+                document.getElementById('countTodas').textContent = d.total;
+                document.getElementById('countPendentes').textContent = d.pendentes;
+                document.getElementById('countAndamento').textContent = d.andamento;
+                document.getElementById('countResolvidas').textContent = d.resolvidas;
+            }
+        }
+
+        // 3. Carregar Lista de Denúncias
+        async function carregarDenuncias() {
+            const grid = document.getElementById('adminGrid');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-hourglass-split"></i>
+                    <h3>Sincronizando...</h3>
+                    <p>Consultando base de ocorrências no servidor</p>
+                </div>
+            `;
+
+            let url = `/admin/denuncias?status=${statusSelecionado}`;
+            const cat = document.getElementById('filtroCategoria').value;
+            if (cat && cat !== 'todas') url += `&tipo=${encodeURIComponent(cat)}`;
+
+            const res = await apiFetch(url);
+            if (res.ok && res.data.success) {
+                todasDenuncias = res.data.denuncias || [];
+                renderizarGrid(todasDenuncias);
+            } else {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <h3>Erro ao carregar dados</h3>
+                        <p>${res.data.error || 'Não foi possível conectar com o banco de dados.'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 4. Renderizar Cards no Grid
+        function renderizarGrid(lista) {
+            const grid = document.getElementById('adminGrid');
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-check2-all" style="color:var(--civic-green);"></i>
+                        <h3>Nenhuma demanda localizada</h3>
+                        <p>Nenhum chamado encontrado para os filtros selecionados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            lista.forEach(d => {
+                const statusClass = `status-${d.status}`;
+                let statusNome = 'Pendente';
+                if (d.status === 'em_andamento') statusNome = 'Em Andamento';
+                if (d.status === 'resolvida') statusNome = 'Resolvida';
+
+                const fotoHtml = d.foto_url ? `
+                    <div class="card-img-wrapper" onclick="ampliarFoto('${d.foto_url}', '${d.titulo.replace(/'/g, "\\'")}')">
+                        <img src="${d.foto_url}" alt="Foto da ocorrência">
+                        <div class="card-header-meta">
+                            <span class="protocol-badge">${d.protocolo}</span>
+                            <span class="category-tag"><i class="bi bi-tag-fill"></i> ${d.tipo}</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="card-img-wrapper" style="height:70px; cursor:default;">
+                        <div class="card-header-meta" style="position:static; padding:10px;">
+                            <span class="protocol-badge">${d.protocolo}</span>
+                            <span class="category-tag"><i class="bi bi-tag-fill"></i> ${d.tipo}</span>
+                        </div>
+                    </div>
+                `;
+
+                html += `
+                    <div class="denuncia-card" id="card-${d.id}">
+                        ${fotoHtml}
+                        <div class="card-content">
+                            <div class="admin-card-header">
+                                <h3 class="card-title">${d.titulo}</h3>
+                                <span class="status-badge ${statusClass}">${statusNome}</span>
+                            </div>
+
+                            <p class="card-desc">${d.descricao}</p>
+
+                            <div class="card-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span><strong>${d.localizacao}</strong> (${d.bairro || 'Sem Bairro'})</span>
+                            </div>
+
+                            <!-- Dados do Cidadão Solicitante -->
+                            <div class="admin-citizen-box">
+                                <div><i class="bi bi-person-fill"></i> Cidadão: <strong>${d.criador_nome || 'Anônimo'}</strong></div>
+                                <div><i class="bi bi-envelope"></i> Contato: <strong>${d.criador_email || 'Não informado'}</strong></div>
+                                <div><i class="bi bi-calendar3"></i> Data: <strong>${formatarDataHora(d.created_at)}</strong> | <i class="bi bi-hand-thumbs-up-fill" style="color:var(--brand-blue);"></i> <strong>${d.votos || 0} apoios</strong></div>
+                            </div>
+
+                            <!-- Parecer Técnico / Resposta Oficial do Órgão -->
+                            <div class="parecer-box">
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-main); display:flex; justify-content:space-between;">
+                                    <span><i class="bi bi-building"></i> Parecer Técnico do Órgão Público:</span>
+                                    <span style="color:var(--brand-blue); font-weight:normal;">Visível para o cidadão</span>
+                                </label>
+                                <textarea id="parecer-${d.id}" class="parecer-input" placeholder="Ex: Equipe da Secretaria de Obras enviada ao local para vistoria e recapeamento asfáltico...">${d.resposta_orgao || ''}</textarea>
+                            </div>
+
+                            <!-- Ações do Administrador -->
+                            <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border-light); display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <select id="status-${d.id}" class="select-control" style="flex:1; font-weight:600;">
+                                    <option value="pendente" ${d.status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                                    <option value="em_andamento" ${d.status === 'em_andamento' ? 'selected' : ''}>🛠 Em Andamento</option>
+                                    <option value="resolvida" ${d.status === 'resolvida' ? 'selected' : ''}>✅ Resolvida</option>
+                                </select>
+                                
+                                <button class="btn btn-primary btn-sm" onclick="salvarDespacho(${d.id})">
+                                    <i class="bi bi-check-lg"></i> Salvar
+                                </button>
+                                
+                                <button class="btn btn-danger btn-sm" onclick="excluirChamado(${d.id})" title="Excluir Ocorrência">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // 5. Salvar Despacho (Status + Parecer Técnico)
+        async function salvarDespacho(id) {
+            const novoStatus = document.getElementById(`status-${id}`).value;
+            const parecer = document.getElementById(`parecer-${id}`).value;
+
+            const res = await apiFetch(`/admin/denuncias/${id}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    status: novoStatus,
+                    resposta_orgao: parecer
+                })
+            });
+
+            if (res.ok && res.data.success) {
+                alert('Ocorrência atualizada com sucesso!');
+                carregarTudo();
+            } else {
+                alert(res.data.error || 'Erro ao atualizar chamada.');
+            }
+        }
+
+        // 6. Excluir Chamado
+        async function excluirChamado(id) {
+            if (!confirm('Deseja realmente excluir esta ocorrência permanentemente do sistema?')) return;
+
+            const res = await apiFetch(`/admin/denuncias/${id}`, { method: 'DELETE' });
+            if (res.ok && res.data.success) {
+                alert('Ocorrência excluída com sucesso.');
+                carregarTudo();
+            } else {
+                alert(res.data.error || 'Erro ao excluir.');
+            }
+        }
+
+        // 7. Filtros e Busca
+        function selecionarStatus(btn) {
+            document.querySelectorAll('.filter-chips .filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            statusSelecionado = btn.dataset.status;
+            carregarDenuncias();
+        }
+
+        function aplicarFiltrosServidor() {
+            carregarDenuncias();
+        }
+
+        function filtrarLocal() {
+            const termo = document.getElementById('campoBusca').value.toLowerCase().trim();
+            if (!termo) {
+                renderizarGrid(todasDenuncias);
+                return;
+            }
+            const filtradas = todasDenuncias.filter(d => 
+                (d.titulo && d.titulo.toLowerCase().includes(termo)) ||
+                (d.protocolo && d.protocolo.toLowerCase().includes(termo)) ||
+                (d.descricao && d.descricao.toLowerCase().includes(termo)) ||
+                (d.localizacao && d.localizacao.toLowerCase().includes(termo)) ||
+                (d.bairro && d.bairro.toLowerCase().includes(termo)) ||
+                (d.criador_nome && d.criador_nome.toLowerCase().includes(termo)) ||
+                (d.criador_email && d.criador_email.toLowerCase().includes(termo))
+            );
+            renderizarGrid(filtradas);
+        }
+
+        // 8. Visualização de Foto
+        function ampliarFoto(url, titulo) {
+            document.getElementById('imgAmpliada').src = url;
+            document.getElementById('modalFotoTitulo').textContent = titulo || 'Evidência Fotográfica';
+            document.getElementById('modalFoto').classList.add('active');
+        }
+
+        function fecharModalFoto() {
+            document.getElementById('modalFoto').classList.remove('active');
+        }
+
+        // 9. Exportar Dados para CSV
+        function exportarRelatorioCSV() {
+            if (!todasDenuncias || todasDenuncias.length === 0) {
+                alert('Não há dados para exportar.');
+                return;
+            }
+            let csv = 'Protocolo;Titulo;Categoria;Status;Votos;Localizacao;Bairro;Cidadao;Email;Data;Parecer\n';
+            todasDenuncias.forEach(d => {
+                const data = formatarDataHora(d.created_at);
+                csv += `"${d.protocolo}";"${d.titulo}";"${d.tipo}";"${d.status}";"${d.votos}";"${d.localizacao}";"${d.bairro || ''}";"${d.criador_nome || ''}";"${d.criador_email || ''}";"${data}";"${(d.resposta_orgao || '').replace(/"/g, '""')}"\n`;
+            });
+
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `relatorio-denuncias-urbanas-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 10. Logout do Administrador
+        async function fazerLogoutAdmin() {
+            await logout('admin-login.html');
+        }
+
+        async function carregarTudo() {
+            const ok = await verificarAcessoAdmin();
+            if (ok) {
+                carregarEstatisticas();
+                carregarDenuncias();
+            }
+        }
+
+        carregarTudo();
+    </script>
+</body>
+</html>

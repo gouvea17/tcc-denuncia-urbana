@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Conta · Denúncias Urbanas</title>
+    <title>Criar Conta Cidadã · Denúncias Urbanas</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
@@ -11,140 +11,131 @@
 
 <div class="auth-page">
 
-    <!-- Lado esquerdo -->
+    <!-- Lado Esquerdo Institucional -->
     <aside class="auth-side">
         <div class="auth-side-content">
-            <div class="logo">
-                <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+            <div class="navbar-brand" style="margin-bottom:2rem;">
+                <div class="brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <span>Denúncias <em>Urbanas</em></span>
             </div>
-            <h2>Cada voz conta. <em>A sua</em> também.</h2>
-            <p>Crie sua conta e junte-se a milhares de cidadãos que estão transformando o espaço urbano.</p>
-            <div class="auth-side-bullets">
-                <div class="auth-side-bullet">
+            <h2>Cada cidadão conta. <em>A sua voz</em> faz a cidade avançar.</h2>
+            <p>Junte-se à rede de munícipes engajados que fiscalizam calçadas, asfalto, iluminação e saneamento em tempo real.</p>
+            
+            <div class="auth-bullets">
+                <div class="auth-bullet-item">
                     <i class="bi bi-shield-check"></i>
-                    <span>Cadastro 100% gratuito e seguro</span>
+                    <span>Cadastro 100% gratuito e em conformidade com a LGPD</span>
                 </div>
-                <div class="auth-side-bullet">
+                <div class="auth-bullet-item">
                     <i class="bi bi-geo-alt"></i>
-                    <span>Relate problemas na sua região</span>
+                    <span>Fiscalize seu bairro e receba notificações de melhorias</span>
                 </div>
-                <div class="auth-side-bullet">
-                    <i class="bi bi-graph-up"></i>
-                    <span>Acompanhe o impacto das suas denúncias</span>
+                <div class="auth-bullet-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Contribua com dados abertos para a gestão pública municipal</span>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Formulário -->
+    <!-- Formulário de Cadastro -->
     <main class="auth-main">
         <div class="auth-box">
 
             <div class="auth-box-header">
-                <h1>Criar conta</h1>
-                <p>Junte-se a quem faz a diferença todos os dias</p>
+                <h1>Criar Conta Cidadã</h1>
+                <p>Preencha os dados abaixo para começar a registrar demandas</p>
             </div>
 
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
+            <div class="msg msg-error" id="msgError" style="display:none;"></div>
+            <div class="msg msg-success" id="msgSuccess" style="display:none;"></div>
 
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="nome">Nome completo</label>
-                    <input type="text" id="nome" placeholder="Seu nome completo" required autocomplete="name">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" class="form-control" placeholder="Seu nome completo" required autocomplete="name">
                 </div>
+
                 <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
+                    <label for="email">E-mail Principal</label>
+                    <input type="email" id="email" class="form-control" placeholder="seu@email.com" required autocomplete="email">
                 </div>
+
                 <div class="form-group">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6">
-                    <div class="password-strength">
-                        <div class="password-strength-bar" id="strengthBar"></div>
-                    </div>
-                    <span class="input-hint">Use letras, números e símbolos para uma senha forte</span>
+                    <label for="senha">Senha de Acesso</label>
+                    <input type="password" id="senha" class="form-control" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6">
+                    <span class="input-hint"><i class="bi bi-lock"></i> Crie uma senha segura com letras e números</span>
                 </div>
-                <button type="submit" class="btn-submit" id="btnRegister">
-                    <i class="bi bi-person-plus"></i> Criar conta
+
+                <button type="submit" class="btn btn-civic btn-lg" id="btnRegister" style="width:100%;">
+                    <i class="bi bi-person-plus-fill"></i> Concluir Cadastro Gratuito
                 </button>
             </form>
 
             <div class="auth-links">
-                Já tem uma conta? <a href="login.html">Faça login</a>
+                Já possui uma conta? <a href="login.html">Fazer Login</a>
             </div>
-            <div class="auth-back">
-                <a href="index.html"><i class="bi bi-arrow-left"></i> Voltar para a página inicial</a>
+
+            <div style="margin-top:1.25rem; text-align:center;">
+                <a href="index.html" style="font-size:0.82rem; color:var(--text-muted);"><i class="bi bi-arrow-left"></i> Voltar à página inicial</a>
             </div>
+
         </div>
     </main>
 
 </div>
 
+<script src="api.js"></script>
 <script>
-    const form = document.getElementById('registerForm');
-    const btnRegister = document.getElementById('btnRegister');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
-    const senhaInput = document.getElementById('senha');
-    const strengthBar = document.getElementById('strengthBar');
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    senhaInput.addEventListener('input', () => {
-        const v = senhaInput.value;
-        strengthBar.className = 'password-strength-bar';
-        if (!v.length) return;
-        if (v.length < 6) strengthBar.classList.add('strength-weak');
-        else if (v.length < 10 || !/[A-Z]/.test(v) || !/[0-9]/.test(v)) strengthBar.classList.add('strength-medium');
-        else strengthBar.classList.add('strength-strong');
-    });
+        const btn = document.getElementById('btnRegister');
+        const msgError = document.getElementById('msgError');
+        const msgSuccess = document.getElementById('msgSuccess');
 
-    form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMessage.style.display = 'none';
-    successMessage.style.display = 'none';
+        msgError.style.display = 'none';
+        msgSuccess.style.display = 'none';
 
-    const nome = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const senha = senhaInput.value;
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
 
-    if (senha.length < 6) {
-        errorMessage.textContent = 'A senha precisa ter no mínimo 6 caracteres.';
-        errorMessage.style.display = 'block';
-        return;
-    }
+        if (!nome || !email || !senha) {
+            msgError.textContent = 'Preencha todos os campos para se cadastrar.';
+            msgError.style.display = 'flex';
+            return;
+        }
 
-    btnRegister.disabled = true;
-    btnRegister.innerHTML = '<span class="spinner"></span> Criando conta...';
+        if (senha.length < 6) {
+            msgError.textContent = 'A senha precisa ter no mínimo 6 caracteres.';
+            msgError.style.display = 'flex';
+            return;
+        }
 
-    try {
-        // 👇👇👇 MUDANÇA AQUI 👇👇👇
-        const response = await fetch('http://localhost:3000/api/register', {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Criando conta...';
+
+        const res = await apiFetch('/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, email, senha })
         });
-        // 👆👆👆 MUDANÇA AQUI 👆👆👆
 
-        const data = await response.json();
-
-        if (response.ok) {
-            successMessage.textContent = 'Cadastro realizado! Redirecionando...';
-            successMessage.style.display = 'block';
-            localStorage.setItem('usuario', JSON.stringify(data.user));
-            setTimeout(() => { window.location.href = 'home.html'; }, 1000);
+        if (res.ok && res.data.success) {
+            salvarUsuarioLogado(res.data.usuario || res.data.user);
+            msgSuccess.innerHTML = '<i class="bi bi-check-circle-fill"></i> Conta criada com sucesso! Conectando ao painel...';
+            msgSuccess.style.display = 'flex';
+            
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 1000);
         } else {
-            errorMessage.textContent = data.error || 'Erro ao cadastrar.';
-            errorMessage.style.display = 'block';
+            msgError.textContent = res.data.error || 'Erro ao realizar o cadastro.';
+            msgError.style.display = 'flex';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-person-plus-fill"></i> Concluir Cadastro Gratuito';
         }
-    } catch (error) {
-        errorMessage.textContent = 'Erro ao conectar com o servidor.';
-        errorMessage.style.display = 'block';
-        console.error('Erro detalhado:', error);
-    } finally {
-        btnRegister.disabled = false;
-        btnRegister.innerHTML = '<i class="bi bi-person-plus"></i> Criar conta';
-    }
-});
+    });
 </script>
 </body>
 </html>

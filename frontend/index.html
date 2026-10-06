@@ -3,134 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Denúncias Urbanas — Sua voz transforma a cidade</title>
+    <title>Denúncias Urbanas · Plataforma Cidadã de Gestão Municipal</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .step-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        .step-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            transition: var(--transition);
+        }
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-blue);
+        }
+        .step-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            background: #eff6ff;
+            color: var(--brand-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1.25rem;
+            font-weight: 700;
+        }
+        .features-section {
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            padding: 4rem 1.5rem;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            max-width: 1140px;
+            margin: 2.5rem auto 0;
+        }
+        .feature-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .feature-box i {
+            font-size: 1.8rem;
+            color: var(--civic-green);
+        }
+        .cta-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #17385c 100%);
+            color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 3.5rem 2rem;
+            text-align: center;
+            margin: 4rem auto;
+            max-width: 1140px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* =========================================
+           Estilos da Seção de Desenvolvedores
+           ========================================= */
+        .secao-desenvolvedores {
+            padding: 4rem 1.5rem;
+            background-color: #f8fafc; /* Fundo cinza bem clarinho */
+            border-top: 1px solid var(--border-light);
+        }
+        .container-devs {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .secao-desenvolvedores h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .subtitulo-devs {
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+        .cards-devs {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .card-dev {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            width: 260px;
+            transition: var(--transition);
+        }
+        .card-dev:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--civic-green);
+        }
+        .card-dev img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--civic-green); /* Borda verde */
+            margin-bottom: 1.25rem;
+        }
+        .card-dev h3 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        .card-dev p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Barra Institucional Superior -->
+    <div class="gov-topbar">
+        <span><i class="bi bi-shield-check"></i> Plataforma Cidadã Oficial de Fiscalização e Zeladoria Urbana</span>
+        <span style="font-size:0.75rem; color:#94a3b8;">Canal Direto Cidadão-Prefeitura</span>
+    </div>
 
     <!-- Navbar -->
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">
-            <i class="bi bi-geo-alt-fill"></i> Denúncias Urbanas
+            <div class="brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <span>Denúncias <em>Urbanas</em></span>
         </a>
         <div class="navbar-actions">
             <a href="login.html" class="btn btn-outline">Entrar</a>
-            <a href="register.html" class="btn btn-primary">Cadastrar</a>
+            <a href="register.html" class="btn btn-civic">Cadastrar-se</a>
         </div>
     </nav>
 
-    <!-- Hero -->
+    <!-- Hero / Apresentação Oficial -->
     <header class="hero">
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="bi bi-megaphone-fill"></i> Plataforma cidadã
+        <div class="hero-inner">
+            <div class="hero-pill">
+                <i class="bi bi-megaphone-fill"></i> Tecnologia Cívica e Cidades Inteligentes
             </div>
-            <h1>Sua voz<br><em>transforma</em><br>a cidade</h1>
+            
+            <h1>Zeladoria urbana na palma da sua mão. <span>Participe.</span></h1>
+            
             <p>
-                Relate problemas urbanos da sua região, acompanhe o andamento
-                e ajude a construir uma comunidade mais justa e participativa.
+                Relate problemas de iluminação, buracos, saneamento e descarte irregular na sua rua. Acompanhe a tramitação por protocolo oficial e colabore para uma cidade melhor.
             </p>
-            <div class="hero-buttons">
-                <a href="register.html" class="btn btn-white btn-lg">
-                    <i class="bi bi-person-plus"></i> Começar agora
+
+            <div class="hero-actions">
+                <a href="register.html" class="btn btn-civic btn-lg">
+                    <i class="bi bi-person-plus-fill"></i> Começar Gratuitamente
                 </a>
-                <a href="login.html" class="btn btn-outline btn-lg">
-                    <i class="bi bi-box-arrow-in-right"></i> Já tenho conta
+                <a href="home.html" class="btn btn-outline btn-lg">
+                    <i class="bi bi-eye"></i> Explorar Ocorrências
                 </a>
             </div>
 
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <div class="hero-stat-number">50.000+</div>
-                    <div class="hero-stat-label">Denúncias registradas</div>
+            <!-- Dados e Métricas Reais do Banco -->
+            <div class="hero-stats-banner">
+                <div class="stat-item">
+                    <span class="stat-num" id="statTotalLanding">—</span>
+                    <span class="stat-lbl"><i class="bi bi-flag-fill"></i> Ocorrências Registradas</span>
                 </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">78%</div>
-                    <div class="hero-stat-label">Taxa de resolução</div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statResolvidasLanding" style="color:#6ee7b7;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-check2-all"></i> Demandas Solucionadas</span>
                 </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">25.000+</div>
-                    <div class="hero-stat-label">Cidadãos ativos</div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statTaxaLanding" style="color:#fde68a;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-graph-up-arrow"></i> Taxa de Resolução</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statCidadaosLanding" style="color:#7dd3fc;">—</span>
+                    <span class="stat-lbl"><i class="bi bi-people-fill"></i> Munícipes Ativos</span>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Como Funciona -->
-    <section class="section">
-        <div class="section-header">
-            <h2>Como funciona</h2>
-            <p>Em três passos, você ajuda a transformar sua cidade</p>
+    <section class="container" style="padding-top:4rem; padding-bottom:4rem;">
+        <div class="section-title" style="text-align:center;">
+            <h2>Como o Sistema Funciona</h2>
+            <p>Fluxo simplificado em conformidade com as diretrizes de transparência municipal</p>
         </div>
-        <div class="steps">
+
+        <div class="step-cards">
             <div class="step-card">
-                <div class="step-number">1</div>
-                <div class="step-icon"><i class="bi bi-camera"></i></div>
-                <h3>Registre</h3>
-                <p>Descreva o problema, tire uma foto e marque a localização exata.</p>
+                <div class="step-badge"><i class="bi bi-camera-fill"></i></div>
+                <h3>1. Registre com Evidência</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+                    Fotografe o problema, informe a localização automática por GPS ou CEP e gere um protocolo oficial no mesmo instante.
+                </p>
             </div>
+
             <div class="step-card">
-                <div class="step-number">2</div>
-                <div class="step-icon"><i class="bi bi-people"></i></div>
-                <h3>Mobilize</h3>
-                <p>Compartilhe e receba votos da comunidade para dar visibilidade.</p>
+                <div class="step-badge" style="background:#ecfdf5; color:var(--civic-green);"><i class="bi bi-people-fill"></i></div>
+                <h3>2. Mobilização Coletiva</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+                    Moradores da sua região apoiam a sua demanda com votos, sinalizando maior urgência para os órgãos públicos municipais.
+                </p>
             </div>
+
             <div class="step-card">
-                <div class="step-number">3</div>
-                <div class="step-icon"><i class="bi bi-check2-circle"></i></div>
-                <h3>Acompanhe</h3>
-                <p>A prefeitura é notificada e você acompanha até a solução final.</p>
+                <div class="step-badge" style="background:#fffbeb; color:#d97706;"><i class="bi bi-clock-history"></i></div>
+                <h3>3. Acompanhe a Solução</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+                    A secretaria municipal emite pareceres técnicos e você acompanha a linha do tempo até o reparo completo no local.
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- Por que participar -->
-    <section class="why-section">
-        <div class="why-inner">
-            <div class="section-header">
-                <h2>Por que participar?</h2>
-                <p>Sua participação faz diferença real na sua comunidade</p>
+    <!-- Pilares de Governança -->
+    <section class="features-section">
+        <div style="max-width:1140px; margin:0 auto;">
+            <div class="section-title" style="text-align:center;">
+                <h2>Pilares da Governança Urbana Integrada</h2>
+                <p>Proposta do TCC para modernização da relação entre prefeituras e cidadãos</p>
             </div>
+
             <div class="features-grid">
-                <div class="feature-item">
+                <div class="feature-box">
                     <i class="bi bi-shield-check"></i>
-                    <h4>Transparência total</h4>
-                    <p>Acompanhe cada etapa do processo, desde o registro até a resolução.</p>
+                    <h4>Transparência Integral</h4>
+                    <p style="font-size:0.88rem; color:var(--text-muted);">
+                        Cada protocolo é público, auditável e pode ser consultado por qualquer cidadão a qualquer momento.
+                    </p>
                 </div>
-                <div class="feature-item">
-                    <i class="bi bi-lightning-charge"></i>
-                    <h4>Agilidade</h4>
-                    <p>Denúncias com mais votos ganham prioridade no atendimento público.</p>
+
+                <div class="feature-box">
+                    <i class="bi bi-lightning-charge-fill" style="color:#f59e0b;"></i>
+                    <h4>Agilidade de Despacho</h4>
+                    <p style="font-size:0.88rem; color:var(--text-muted);">
+                        Painel dedicado para servidores públicos priorizarem chamados com maior número de apoios comunitários.
+                    </p>
                 </div>
-                <div class="feature-item">
-                    <i class="bi bi-heart"></i>
-                    <h4>Impacto social</h4>
-                    <p>Cada denúncia resolvida melhora a qualidade de vida de toda a vizinhança.</p>
+
+                <div class="feature-box">
+                    <i class="bi bi-geo-fill" style="color:#ef4444;"></i>
+                    <h4>Geolocalização Precisa</h4>
+                    <p style="font-size:0.88rem; color:var(--text-muted);">
+                        Facilidade no mapeamento das equipes de manutenção com apoio de GPS e integração ViaCEP.
+                    </p>
                 </div>
-                <div class="feature-item">
-                    <i class="bi bi-graph-up"></i>
-                    <h4>Dados abertos</h4>
-                    <p>Estatísticas públicas ajudam a identificar problemas recorrentes na cidade.</p>
+
+                <div class="feature-box">
+                    <i class="bi bi-database-fill-check" style="color:var(--brand-blue);"></i>
+                    <h4>Dados Abertos para Pesquisa</h4>
+                    <p style="font-size:0.88rem; color:var(--text-muted);">
+                        Exportação de históricos e métricas para subsidiar o planejamento orçamentário e urbano.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section">
-        <h2>Pronto para fazer a diferença?</h2>
-        <p>Junte-se a milhares de cidadãos que estão transformando suas cidades todos os dias.</p>
-        <a href="register.html" class="btn btn-white btn-lg">
-            <i class="bi bi-person-plus"></i> Criar minha conta gratuita
-        </a>
+    <!-- =========================================
+         SEÇÃO DOS DESENVOLVEDORES (NOVO)
+         ========================================= -->
+    <section class="secao-desenvolvedores">
+        <div class="container-devs">
+            <h2>Desenvolvedores do Projeto</h2>
+            <p class="subtitulo-devs">Conheça a equipe por trás da plataforma</p>
+            
+            <div class="cards-devs">
+                <!-- Card do Gabriel -->
+                <div class="card-dev">
+                    <img src="img/gouvea7.jpeg" alt="Foto do Gabriel Gouvea">
+                    <h3>Gabriel Gouvea</h3>
+                    <p>Desenvolvedor Full Stack</p>
+                </div>
+
+                <!-- Card do Breno -->
+                <div class="card-dev">
+                    <img src="img/breno.jpeg" alt="Foto do Breno Cabrera">
+                    <h3>Breno Cabrera</h3>
+                    <p>Desenvolvedor Full Stack</p>
+                </div>
+            </div>
+        </div>
     </section>
+    <!-- ========================================= -->
+
+    <!-- Chamada para Ação (CTA) -->
+    <div style="padding:0 1.5rem;">
+        <div class="cta-banner">
+            <h2 style="font-size:2rem; color:#ffffff; margin-bottom:0.75rem;">Faça parte da transformação da sua cidade</h2>
+            <p style="color:#cbd5e1; max-width:600px; margin:0 auto 1.75rem;">
+                Crie sua conta gratuita em menos de 1 minuto e comece a participar ativamente da fiscalização do seu bairro.
+            </p>
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                <a href="register.html" class="btn btn-civic btn-lg">
+                    <i class="bi bi-person-plus-fill"></i> Criar Conta Cidadã
+                </a>
+                <a href="login.html" class="btn btn-outline btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i> Já Possuo Conta
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>Feito com <i class="bi bi-heart-fill"></i> para construir cidades melhores</p>
-        <p style="margin-top:0.4rem">© 2026 <strong>Denúncias Urbanas</strong> · Todos os direitos reservados</p>
+        <div class="footer-inner">
+            <div>
+                <div class="navbar-brand" style="margin-bottom:8px;">
+                    <div class="brand-icon" style="width:30px; height:30px; font-size:0.9rem;"><i class="bi bi-geo-alt-fill"></i></div>
+                    <span style="font-size:1.1rem;">Denúncias <em>Urbanas</em></span>
+                </div>
+                <p style="font-size:0.8rem; color:#64748b; max-width:400px;">
+                    Plataforma de gestão participativa e zeladoria urbana para integração entre munícipes e prefeitura municipal.
+                </p>
+            </div>
+
+            <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+                <div>
+                    <strong style="display:block; margin-bottom:8px; color:#ffffff; font-size:0.85rem;">Cidadão</strong>
+                    <div style="display:flex; flex-direction:column; gap:4px; font-size:0.82rem;">
+                        <a href="home.html">Feed de Ocorrências</a>
+                        <a href="denuncia.html">Registrar Demanda</a>
+                    </div>
+                </div>
+                <div>
+                    <strong style="display:block; margin-bottom:8px; color:#ffffff; font-size:0.85rem;">Institucional</strong>
+                    <div style="display:flex; flex-direction:column; gap:4px; font-size:0.82rem;">
+                        <a href="login.html">Acesso Cidadão</a>
+                        <a href="register.html">Cadastro de Munícipe</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.06); font-size:0.75rem; color:#64748b;">
+            © 2026 Denúncias Urbanas · Sistema de Zeladoria e Fiscalização Pública Municipal
+        </div>
     </footer>
 
+    <!-- Script de Carregamento de Métricas Reais -->
+    <script src="api.js"></script>
+    <script>
+        async function carregarMetricasLanding() {
+            const res = await apiFetch('/denuncias/estatisticas-publicas');
+            if (res.ok && res.data.success) {
+                const d = res.data;
+                document.getElementById('statTotalLanding').textContent = d.total || 0;
+                document.getElementById('statResolvidasLanding').textContent = d.resolvidas || 0;
+                document.getElementById('statTaxaLanding').textContent = d.taxa_resolucao || '100%';
+                document.getElementById('statCidadaosLanding').textContent = d.cidadaos || 1;
+            } else {
+                document.getElementById('statTotalLanding').textContent = '—';
+                document.getElementById('statResolvidasLanding').textContent = '—';
+                document.getElementById('statTaxaLanding').textContent = '—';
+                document.getElementById('statCidadaosLanding').textContent = '—';
+            }
+        }
+        carregarMetricasLanding();
+    </script>
 </body>
 </html>
